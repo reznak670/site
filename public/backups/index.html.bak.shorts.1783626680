@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloody Scissors - Сургутская Ньюметал Группа</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&family=Nosifer&family=Eater&family=Creepster&family=Rubik+Glitch&family=Rubik+Burned&family=Rubik+Wet+Paint&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&family=Nosifer&family=Eater&family=Creepster&family=Rubik+Glitch&family=Rubik+Burned&family=Rubik+Wet+Paint&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Компонент 1: Приветствие -->
+    <section id="welcome" class="fullscreen">
+        <div class="video-background">
+            <video autoplay muted loop playsinline poster="img/poster.jpg" class="concert-video">
+                <source src="video/concert.mp4" type="video/mp4">
+                Ваш браузер не поддерживает видео.
+            </video>
+            <div class="video-overlay-dark"></div>
+            <div class="video-scanlines"></div>
+            <div class="video-noise"></div>
+            <div class="video-glitch"></div>
+        </div>
+        <div class="content welcome-content">
+            <h1 class="koza-text">КОЗААА</h1>
+            <p class="subtitle">Bloody Scissors</p>
+            <p class="subtitle-sub">Сургутский ньюметал</p>
+            <div class="scroll-indicator">▼</div>
+        </div>
+    </section>
+
+    <!-- Компонент 2: Описание группы -->
+    <section id="description" class="fullscreen">
+        <div class="section-bg-image" style="background-image: url('img/we.jpg');">
+            <div class="section-bg-overlay"></div>
+            <div class="section-bg-scanlines"></div>
+            <div class="section-bg-vignette"></div>
+        </div>
+        <div class="content description-content">
+            <h2>КТО МЫ?</h2>
+            <div class="description-text">
+                <p>Ты живешь возле невесомости, и не можешь уснуть вечером? Не беспокойся, это Bloody Scissors, которые не дают заскучать на их концертах и поблизости. Ведь они рвут нахуй звуковой барьер, проникая своими острыми лезвиями прямо тебе в уши. Пошла кровь? Не беда! Ведь нам похуй! Они сами принимают ванны крови каждый вечер, так что твоя ранка для них как умыться с утра перед тем как пить алкоголь. Так что не пизди, и пиздуй на концерт! На самый пиздатый слэм под орущего вокалиста!</p>
+            </div>
+            <div class="disclaimers">
+                <p class="disclaimer">[ВЕСЬ ТЕКСТ СВЕРХУ ЯВЛЯЕТСЯ ВЫДУМКОЙ, ТАК ЖЕ ВСЕ ЭТО ПРОИСХОДИТ ТОЛЬКО В ГТА РП, И СГЕНЕРИРОВАНО В НЕЙРОСЕТИ, ВСЕ СОВПАДЕНИЯ НЕ РЕАЛЬНЫ]</p>
+                <p class="disclaimer">[НА САМОМ ДЕЛЕ МЫ БЕСПОКОИМСЯ ЗА КАЖДОГО ЧЕЛОВЕКА ПРИШЕДШЕГО НА КОНЦЕРТ, ПРОДВИГАЯ ТОЛЬКО ДОБРО И ПОЗИТИВ]</p>
+                <p class="disclaimer">[УПОТРЕБЛЕНИЕ АЛКОГОЛЯ ВРЕДИТ ВАШЕМУ ЗДОРОВЬЮ]</p>
+                <p class="disclaimer">[ТАК ЖЕ ВСЕ ВЫСКАЗЫВАНИЯ ЯВЛЯЮТСЯ ТОЛЬКО ХУДОЖЕСТВЕННЫМ ОБРАЗОМ]</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Компонент 3: Концерты -->
+    <section id="concerts" class="fullscreen">
+        <div class="section-bg-image concert-bg" style="background-image: url('img/aaa.jpg');">
+            <div class="section-bg-vhs vhs-scanlines-light"></div>
+            <div class="section-bg-vhs vhs-noise-subtle"></div>
+            <div class="section-bg-vhs vhs-tracking-line"></div>
+            <div class="section-bg-vhs vhs-chromatic"></div>
+            <div class="section-bg-vhs vhs-flicker-subtle"></div>
+        </div>
+        <div class="content concerts-content">
+            <h2>КОНЦЕРТЫ</h2>
+            <div class="concerts-list">
+                <div class="concert-item">
+                    <span class="concert-date">СКОРО</span>
+                    <span class="concert-title">ТОТАЛЬНЫЙ СЛЭМ</span>
+                    <span class="concert-venue">Сургут, андеграунд</span>
+                </div>
+                <p class="coming-soon">Следи за анонсами в наших соцсетях</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Компонент 4: Участники -->
+    <section id="members" class="fullscreen">
+        <div class="content members-content">
+            <h2>ЛЕЗВИЯ В СОСТАВЕ</h2>
+            <p class="members-intro">Каждый из нас — острое лезвие, вонзающееся в твои уши. Мы — хирургический инструмент по расчленению тишины. Знакомься с теми, кто заставит твою кровь кипеть.</p>
+            
+            <div class="tic-tac-toe-grid">
+                <!-- Верхний ряд -->
+                <div class="cell cell-top-left" style="background-image: url('img/artur.jpg');">
+                    <div class="cell-overlay"></div>
+                    <div class="cell-content">
+                        <span class="cell-number">01</span>
+                        <h3 class="cell-name">АРТУР</h3>
+                        <p class="cell-role">Вокал</p>
+                        <p class="cell-desc">Глотка Сургута. Самый лучший вокалист андеграунда. Его голос вырывается из преисподней, раздирая тишину на куски.</p>
+                        <p class="cell-quote">«Мой голос — твоё кровотечение»</p>
+                    </div>
+                </div>
+                
+                <div class="cell cell-top-center" style="background-image: url('img/damir.jpg');">
+                    <div class="cell-overlay"></div>
+                    <div class="cell-content">
+                        <span class="cell-number">02</span>
+                        <h3 class="cell-name">ДАМИР</h3>
+                        <p class="cell-role">Бас-гитара</p>
+                        <p class="cell-desc">Низкочастотный убийца. В своём деле ему нет равных. Его бас выворачивает внутренности и рушит фундамент.</p>
+                        <p class="cell-quote">«Твой позвоночник резонирует»</p>
+                    </div>
+                </div>
+                
+                <div class="cell cell-top-right" style="background-image: url('img/gosha.jpg');">
+                    <div class="cell-overlay"></div>
+                    <div class="cell-content">
+                        <span class="cell-number">03</span>
+                        <h3 class="cell-name">ГОША</h3>
+                        <p class="cell-role">Гитара</p>
+                        <p class="cell-desc">Лезвие #1. Гитарные рифы разрывают сцену. Плетёт звуковую паутину, из которой не выбраться.</p>
+                        <p class="cell-quote">«Рифф — удар хлыстом»</p>
+                    </div>
+                </div>
+
+                <!-- Средний ряд -->
+                <div class="cell cell-middle-left" style="background-image: url('img/kostya.jpg');">
+                    <div class="cell-overlay"></div>
+                    <div class="cell-content">
+                        <span class="cell-number">04</span>
+                        <h3 class="cell-name">КОСТЯ</h3>
+                        <p class="cell-role">Гитара</p>
+                        <p class="cell-desc">Лезвие #2. Соло — контрольный выстрел в голову. Вдвоём с Гошей они смертоносный дуэт.</p>
+                        <p class="cell-quote">«Два грифа — двойное кровопускание»</p>
+                    </div>
+                </div>
+                
+                <div class="cell cell-middle-center center-cell-bg">
+                    <div class="cell-overlay center-overlay"></div>
+                    <div class="cell-content center-cell">
+                        <span class="cell-number">05</span>
+                        <h3 class="cell-name">BLOODY<br>SCISSORS</h3>
+                        <p class="cell-role">Сургутский ньюметал</p>
+                        <p class="cell-desc">Шесть лезвий — одна кровавая баня. Мы не группа, мы хирургический инструмент.</p>
+                        <p class="cell-quote">«КОЗААА!»</p>
+                    </div>
+                </div>
+                
+                <div class="cell cell-middle-right" style="background-image: url('img/gleb.jpg');">
+                    <div class="cell-overlay"></div>
+                    <div class="cell-content">
+                        <span class="cell-number">06</span>
+                        <h3 class="cell-name">ГЛЕБ</h3>
+                        <p class="cell-role">Барабаны</p>
+                        <p class="cell-desc">Один из самых быстрых барабанщиков Сургутской сцены. Палочки исчезают из виду.</p>
+                        <p class="cell-quote">«Скорость убивает тишину»</p>
+                    </div>
+                </div>
+
+                <!-- Нижний ряд -->
+                <div class="cell cell-bottom-left empty-cell-bg">
+                    <div class="cell-overlay"></div>
+                    <div class="cell-content empty-cell">
+                        <span class="cell-symbol">✕</span>
+                        <p class="cell-empty-text">Место для тебя</p>
+                    </div>
+                </div>
+                
+                <div class="cell cell-bottom-center" style="background-image: url('img/vlad.jpg');">
+                    <div class="cell-overlay"></div>
+                    <div class="cell-content">
+                        <span class="cell-number">07</span>
+                        <h3 class="cell-name">ВЛАД</h3>
+                        <p class="cell-role">Вокал</p>
+                        <p class="cell-desc">Голос фобии. Лидер группы Phobia. Холодный ужас, проникающий в подкорку.</p>
+                        <p class="cell-quote">«У страха есть голос»</p>
+                    </div>
+                </div>
+                
+                <div class="cell cell-bottom-right empty-cell-bg">
+                    <div class="cell-overlay"></div>
+                    <div class="cell-content empty-cell">
+                        <span class="cell-symbol">◯</span>
+                        <p class="cell-empty-text">Твоё лезвие</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="members-footer">
+                <p>ШЕСТЬ ЛЕЗВИЙ — ОДНА КРОВАВАЯ БАНЯ</p>
+                <p class="footer-sub">А ТЫ ГОТОВ СТАТЬ СЕДЬМЫМ?</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Компонент 5: Треки -->
+    <section id="tracks" class="fullscreen">
+        <div class="section-bg-image tracks-bg">
+            <div class="section-bg-vhs vhs-scanlines-light"></div>
+            <div class="section-bg-vhs vhs-noise-subtle"></div>
+            <div class="section-bg-vhs vhs-tracking-line"></div>
+            <div class="section-bg-vhs vhs-chromatic"></div>
+            <div class="section-bg-vhs vhs-flicker-subtle"></div>
+        </div>
+        <div class="content tracks-content">
+            <h2>ТРЕКИ</h2>
+            <p class="tracks-intro">Наше оружие массового поражения. Врубай на полную, и пусть соседи вызывают ОМОН.</p>
+            
+            <div class="tracks-grid">
+                <!-- Верхний ряд -->
+                <div class="track-cell cell-top-left">
+                    <div class="track-cell-bg"></div>
+                    <div class="track-cell-content">
+                        <span class="track-badge badge-best">ЛУЧШИЙ</span>
+                        <h3 class="track-name">ПРОШЛОЕ</h3>
+                        <p class="track-desc">Самый пиздатый трек на альбоме, очень классное сочетание приятной мелодии и тяжеляка.</p>
+                        <div class="track-player">
+                            <audio class="track-audio" src="sound/Bloody Scissors - прошлое.mp3" preload="none"></audio>
+                            <button class="track-play-btn">▶ ИГРАТЬ</button>
+                            <div class="track-progress"><div class="track-progress-fill"></div></div>
+                            <span class="track-time">00:00</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="track-cell cell-top-center">
+                    <div class="track-cell-bg"></div>
+                    <div class="track-cell-content">
+                        <span class="track-badge badge-brutal">БРУТАЛЬНЫЙ</span>
+                        <h3 class="track-name">GROWL STREET</h3>
+                        <p class="track-desc">Во время прослушивания захотел прострелить бабке колени, плотные риффы и злой текст.</p>
+                        <div class="track-player">
+                            <audio class="track-audio" src="sound/Bloody Scissors - Growl Street.mp3" preload="none"></audio>
+                            <button class="track-play-btn">▶ ИГРАТЬ</button>
+                            <div class="track-progress"><div class="track-progress-fill"></div></div>
+                            <span class="track-time">00:00</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="track-cell cell-top-right">
+                    <div class="track-cell-bg"></div>
+                    <div class="track-cell-content">
+                        <span class="track-badge badge-dark">МРАЧНЫЙ</span>
+                        <h3 class="track-name">СТРАХ</h3>
+                        <p class="track-desc">Нихуйная конкуренция "eyeless", текст зашел, под утреннюю прогулку самое то.</p>
+                        <div class="track-player">
+                            <audio class="track-audio" src="sound/Bloody Scissors - страх.mp3" preload="none"></audio>
+                            <button class="track-play-btn">▶ ИГРАТЬ</button>
+                            <div class="track-progress"><div class="track-progress-fill"></div></div>
+                            <span class="track-time">00:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Средний ряд -->
+                <div class="track-cell cell-middle-left">
+                    <div class="track-cell-bg"></div>
+                    <div class="track-cell-content">
+                        <span class="track-badge badge-meh">СЛАБЕЕ</span>
+                        <h3 class="track-name">КРОВАВАЯ СЛЕЗА</h3>
+                        <p class="track-desc">Как по мне самый слабый трек из всех вышедших, однотипный и ничем особо не цепляет.</p>
+                        <div class="track-player">
+                            <audio class="track-audio" src="sound/Bloody Scissors - кровавая слеза.mp3" preload="none"></audio>
+                            <button class="track-play-btn">▶ ИГРАТЬ</button>
+                            <div class="track-progress"><div class="track-progress-fill"></div></div>
+                            <span class="track-time">00:00</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="track-cell cell-middle-center center-track">
+                    <div class="track-cell-bg"></div>
+                    <div class="track-cell-content">
+                        <span class="track-badge badge-new">НОВЫЙ РЕЛИЗ</span>
+                        <h3 class="track-name">САДОМАЗОХИЗМ</h3>
+                        <p class="track-desc">Самое ахуенное, что пока слышал на сибирской сцене, we will rock you для метала, забавная история про селфхарм.</p>
+                        <div class="track-player">
+                            <audio class="track-audio" src="sound/Bloody Scissors - садомазохизм.mp3" preload="none"></audio>
+                            <button class="track-play-btn">▶ ИГРАТЬ</button>
+                            <div class="track-progress"><div class="track-progress-fill"></div></div>
+                            <span class="track-time">00:00</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="track-cell cell-middle-right">
+                    <div class="track-cell-bg"></div>
+                    <div class="track-cell-content">
+                        <span class="track-badge badge-first">ПЕРВЫЙ РЕЛИЗ</span>
+                        <h3 class="track-name">SCISSORS</h3>
+                        <p class="track-desc">Базовый метальный трек, хайповое соло.</p>
+                        <div class="track-player">
+                            <audio class="track-audio" src="sound/Bloody Scissors - scissors.mp3" preload="none"></audio>
+                            <button class="track-play-btn">▶ ИГРАТЬ</button>
+                            <div class="track-progress"><div class="track-progress-fill"></div></div>
+                            <span class="track-time">00:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Нижний ряд с пустыми ячейками -->
+                <div class="track-cell cell-bottom-left empty-track">
+                    <div class="track-cell-bg"></div>
+                    <div class="track-cell-content">
+                        <span class="track-empty-symbol">✕</span>
+                        <p class="track-empty-text">СКОРО</p>
+                    </div>
+                </div>
+                
+                <div class="track-cell cell-bottom-center empty-track">
+                    <div class="track-cell-bg"></div>
+                    <div class="track-cell-content">
+                        <span class="track-empty-symbol">◯</span>
+                        <p class="track-empty-text">НОВЫЙ ТРЕК</p>
+                    </div>
+                </div>
+                
+                <div class="track-cell cell-bottom-right empty-track">
+                    <div class="track-cell-bg"></div>
+                    <div class="track-cell-content">
+                        <span class="track-empty-symbol">△</span>
+                        <p class="track-empty-text">ЖДИ</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tracks-footer">
+                <p>ВРУБАЙ НА ПОЛНУЮ — РАЗРУШАЙ ТИШИНУ</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Компонент 6: Контакты и соцсети -->
+    <!-- Компонент 6: Контакты и соцсети -->
+    <section id="contacts" class="fullscreen">
+        <div class="content">
+            <h2>НА СВЯЗИ</h2>
+            <div class="social-links">
+                <a href="#" class="social-link">VK</a>
+                <a href="#" class="social-link">TELEGRAM</a>
+                <a href="#" class="social-link">YOUTUBE</a>
+            </div>
+            <div class="final-message">
+                <p>НЕ ПИЗДИ — ПИЗДУЙ НА КОНЦЕРТ!</p>
+                <p class="koza-small">КОЗААА</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="vhs-overlay">
+        <div class="vhs-scanlines"></div>
+        <div class="vhs-noise"></div>
+        <div class="vhs-tracking"></div>
+        <div class="vhs-glitch-line"></div>
+        <div class="vhs-glitch-line-2"></div>
+        <div class="vhs-flicker"></div>
+        <div class="vhs-color-shift"></div>
+        <div class="vhs-timestamp">REC ● 00:00:00</div>
+        <div class="vhs-play">▶ PLAY</div>
+    </div>
+    <div class="vhs-overlay">
+        <div class="vhs-scanlines"></div>
+        <div class="vhs-noise"></div>
+        <div class="vhs-tracking"></div>
+        <div class="vhs-glitch-line"></div>
+        <div class="vhs-glitch-line-2"></div>
+        <div class="vhs-flicker"></div>
+        <div class="vhs-color-shift"></div>
+        <div class="vhs-timestamp">REC ● 00:00:00</div>
+        <div class="vhs-play">▶ PLAY</div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

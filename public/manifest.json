@@ -1,0 +1,22 @@
+{
+  "name": "Bloody Scissors",
+  "short_name": "SCISSORS",
+  "description": "Сургутская ньюметал группа Bloody Scissors",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0000",
+  "theme_color": "#0a0000",
+  "icons": [
+    {
+      "src": "img/favicon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "img/favicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

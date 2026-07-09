@@ -1,0 +1,358 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Metal Mania', 'Creepster', 'Courier New', monospace;
+    background: #0a0a0a;
+    color: #ff1744;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    position: relative;
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><circle cx='10' cy='10' r='8' fill='none' stroke='%23ff1744' stroke-width='2'/></svg>") 10 10, crosshair;
+}
+
+/* ============ VHS ОВЕРЛЕЙ ============ */
+.vhs-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: overlay;
+}
+
+.vhs-scanlines {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+    pointer-events: none;
+    z-index: 10000;
+    animation: scanlines 0.1s linear infinite;
+}
+
+@keyframes scanlines { 0% { transform: translateY(0); } 100% { transform: translateY(4px); } }
+
+.vhs-noise {
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
+    background-size: 256px 256px;
+    pointer-events: none;
+    z-index: 10001;
+    animation: noise 0.5s steps(3) infinite;
+    opacity: 0.3;
+}
+
+@keyframes noise { 0%{transform:translate(0,0)} 25%{transform:translate(-5%,3%)} 50%{transform:translate(3%,-2%)} 75%{transform:translate(-2%,-5%)} 100%{transform:translate(5%,2%)} }
+
+.vhs-tracking {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10002;
+    animation: tracking 3s linear infinite;
+}
+
+@keyframes tracking { 0%{background:linear-gradient(to bottom,transparent 0%,transparent 20%,rgba(255,23,68,0.05) 20%,rgba(255,23,68,0.05) 23%,transparent 23%,transparent 100%);transform:translateY(0)} 100%{background:linear-gradient(to bottom,transparent 0%,transparent 20%,rgba(255,23,68,0.05) 20%,rgba(255,23,68,0.05) 23%,transparent 23%,transparent 100%);transform:translateY(100vh)} }
+
+.vhs-glitch-line, .vhs-glitch-line-2 {
+    position: fixed;
+    left: -10%;
+    width: 120%;
+    height: 3px;
+    background: rgba(255,23,68,0.4);
+    pointer-events: none;
+    z-index: 10003;
+    filter: blur(1px);
+}
+
+.vhs-glitch-line { top: 15%; animation: glitchLine 2s infinite; }
+.vhs-glitch-line-2 { top: 65%; height: 2px; background: rgba(0,255,255,0.2); animation: glitchLine2 3s infinite 1s; }
+
+@keyframes glitchLine { 0%,100%{transform:translateX(-5%);opacity:0} 10%{transform:translateX(2%);opacity:.8} 11%{transform:translateX(-3%);opacity:0} 12%{transform:translateX(5%);opacity:.6} 13%{transform:translateX(-1%);opacity:0} 50%{transform:translateX(0);opacity:0} }
+@keyframes glitchLine2 { 0%,100%{transform:translateX(5%);opacity:0} 30%{transform:translateX(-2%);opacity:.6} 31%{transform:translateX(3%);opacity:0} 32%{transform:translateX(-5%);opacity:.4} 33%{transform:translateX(1%);opacity:0} 80%{transform:translateX(0);opacity:0} }
+
+.vhs-flicker {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10004;
+    animation: flicker 0.15s infinite;
+}
+
+@keyframes flicker { 0%{background:transparent} 50%{background:rgba(0,0,0,0.03)} 51%{background:transparent} 100%{background:transparent} }
+
+.vhs-color-shift {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10005;
+    animation: colorShift 5s infinite;
+}
+
+@keyframes colorShift { 0%,100%{box-shadow:inset 3px 0 0 rgba(255,0,0,0.03),inset -3px 0 0 rgba(0,255,255,0.03)} 25%{box-shadow:inset 5px 0 0 rgba(255,0,0,0.05),inset -5px 0 0 rgba(0,255,255,0.02)} 50%{box-shadow:inset 2px 0 0 rgba(255,0,0,0.02),inset -2px 0 0 rgba(0,255,255,0.05)} 75%{box-shadow:inset 6px 0 0 rgba(255,0,0,0.04),inset -1px 0 0 rgba(0,255,255,0.04)} }
+
+.vhs-timestamp {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: rgba(255,255,255,0.6);
+    z-index: 10006;
+    text-shadow: 0 0 5px rgba(0,0,0,0.8);
+    letter-spacing: 2px;
+    animation: timestampPulse 2s infinite;
+}
+
+@keyframes timestampPulse { 0%,100%{opacity:.6} 50%{opacity:.8} }
+
+.vhs-play {
+    position: fixed;
+    top: 15px;
+    left: 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #00ff00;
+    z-index: 10006;
+    text-shadow: 0 0 10px #00ff00;
+    animation: playBlink 1s infinite;
+    letter-spacing: 2px;
+}
+
+@keyframes playBlink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ============ ОБЩИЕ СТИЛИ ============ */
+.fullscreen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px; position: relative; }
+.content { text-align: center; max-width: 900px; }
+h1, h2, h3, .koza-text, .cell-name, .members-footer { font-family: 'Metal Mania', 'Nosifer', 'Creepster', cursive; text-transform: uppercase; letter-spacing: 3px; }
+p, .description-text, .cell-desc, .cell-role { font-family: 'Creepster', 'Metal Mania', 'Courier New', monospace; }
+.koza-text { font-family: 'Nosifer', 'Metal Mania', 'Eater', cursive !important; }
+
+/* ============ КОМПОНЕНТ 1: ПРИВЕТСТВИЕ ============ */
+#welcome { background: #0a0000; overflow: hidden; animation: none !important; position: relative; }
+.video-background { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 0; }
+.concert-video { position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%); object-fit: cover; filter: brightness(0.6) contrast(1.2) saturate(0.8); }
+.video-overlay-dark { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at center, rgba(10,0,0,0.3) 0%, rgba(10,0,0,0.6) 50%, rgba(10,0,0,0.85) 100%); z-index: 1; animation: overlayPulse 3s ease-in-out infinite; }
+@keyframes overlayPulse { 0%,100%{background:radial-gradient(ellipse at center,rgba(10,0,0,0.3) 0%,rgba(10,0,0,0.6) 50%,rgba(10,0,0,0.85) 100%)} 50%{background:radial-gradient(ellipse at center,rgba(15,0,0,0.2) 0%,rgba(10,0,0,0.5) 50%,rgba(10,0,0,0.9) 100%)} }
+.video-scanlines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px); z-index: 2; pointer-events: none; animation: videoScanlines 0.1s linear infinite; }
+@keyframes videoScanlines { 0%{transform:translateY(0)} 100%{transform:translateY(4px)} }
+.video-noise { position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E"); background-size: 256px 256px; z-index: 3; pointer-events: none; animation: videoNoise 0.5s steps(3) infinite; }
+@keyframes videoNoise { 0%{transform:translate(0,0)} 25%{transform:translate(-3%,2%)} 50%{transform:translate(2%,-1%)} 75%{transform:translate(-1%,-3%)} 100%{transform:translate(3%,1%)} }
+.video-glitch { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none; }
+.video-glitch::before { content: ''; position: absolute; top: 30%; left: -5%; width: 110%; height: 4px; background: rgba(255,23,68,0.4); animation: videoGlitchLine 3s infinite; filter: blur(1px); }
+.video-glitch::after { content: ''; position: absolute; top: 60%; left: -5%; width: 110%; height: 3px; background: rgba(0,255,255,0.2); animation: videoGlitchLine2 4s infinite 1s; filter: blur(1px); }
+@keyframes videoGlitchLine { 0%,100%{transform:translateX(-5%);opacity:0} 10%{transform:translateX(2%);opacity:.8} 11%{transform:translateX(-3%);opacity:0} 12%{transform:translateX(5%);opacity:.6} 13%{transform:translateX(-1%);opacity:0} 50%{transform:translateX(0);opacity:0} }
+@keyframes videoGlitchLine2 { 0%,100%{transform:translateX(5%);opacity:0} 30%{transform:translateX(-2%);opacity:.6} 31%{transform:translateX(3%);opacity:0} 32%{transform:translateX(-5%);opacity:.4} 33%{transform:translateX(1%);opacity:0} 80%{transform:translateX(0);opacity:0} }
+.welcome-content { position: relative; z-index: 5; }
+
+.koza-text { font-size: 8vw; font-weight: 900; color: #ff1744; text-shadow: 0 0 50px #ff1744, 0 0 100px #ff1744, 4px 4px 0 #000, -4px -4px 0 rgba(0,255,255,0.3); animation: glitchText 0.5s infinite; letter-spacing: 20px; }
+@keyframes glitchText { 0%,100%{transform:translateX(0);text-shadow:0 0 50px #ff1744,0 0 100px #ff1744,3px 3px 0 #000} 20%{transform:translateX(-5px) skewX(2deg);text-shadow:-3px 0 red,3px 0 cyan,0 0 50px #ff1744} 40%{transform:translateX(5px) skewX(-2deg);text-shadow:3px 0 cyan,-3px 0 red,0 0 100px #ff1744} 60%{transform:translateX(-3px);text-shadow:-2px 0 red,2px 0 cyan,0 0 50px #ff1744} 80%{transform:translateX(3px);text-shadow:2px 0 cyan,-2px 0 red,0 0 100px #ff1744} }
+.subtitle { font-family: 'Metal Mania', cursive; font-size: 3vw; margin-top: 20px; color: #ff5252; letter-spacing: 10px; text-shadow: 0 0 20px #ff1744, 2px 2px 0 #000; background: rgba(0,0,0,0.6); display: inline-block; padding: 10px 25px; backdrop-filter: blur(5px); }
+.subtitle-sub { font-family: 'Creepster', cursive; font-size: 1.5vw; color: #ff8a80; margin-top: 10px; text-shadow: 0 0 10px #ff1744; background: rgba(0,0,0,0.6); display: inline-block; padding: 8px 20px; backdrop-filter: blur(5px); }
+.scroll-indicator { position: absolute; bottom: 30px; font-size: 30px; animation: bounce 2s infinite; color: #ff1744; text-shadow: 0 0 20px #ff1744; }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(20px)} }
+
+/* ============ ФОНОВЫЕ ИЗОБРАЖЕНИЯ С VHS ============ */
+.section-bg-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; background-repeat: no-repeat; z-index: 0; filter: brightness(1) contrast(1.05) saturate(0.95); }
+.concert-bg { filter: brightness(1) contrast(1.1) saturate(1) !important; }
+.section-bg-vhs { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
+.vhs-scanlines-light { background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px); animation: scanlinesMove 0.1s linear infinite; z-index: 6; }
+@keyframes scanlinesMove { 0%{transform:translateY(0)} 100%{transform:translateY(4px)} }
+.vhs-noise-subtle { background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); background-size: 200px 200px; animation: noiseShift 0.4s steps(3) infinite; opacity: 0.6; z-index: 7; }
+@keyframes noiseShift { 0%{transform:translate(0,0)} 25%{transform:translate(-2%,1%)} 50%{transform:translate(1%,-1%)} 75%{transform:translate(-1%,-2%)} 100%{transform:translate(2%,1%)} }
+.vhs-tracking-line { background: transparent; animation: trackingMove 4s linear infinite; z-index: 8; }
+@keyframes trackingMove { 0%{box-shadow:inset 0 0 0 transparent,0 30% 0 0 rgba(255,255,255,0.03);transform:translateY(-100%)} 100%{box-shadow:inset 0 0 0 transparent,0 30% 0 0 rgba(255,255,255,0.03);transform:translateY(100%)} }
+.vhs-chromatic { animation: chromaShift 6s infinite; z-index: 9; }
+@keyframes chromaShift { 0%,100%{box-shadow:inset 2px 0 0 rgba(255,0,0,0.02),inset -2px 0 0 rgba(0,255,255,0.02)} 25%{box-shadow:inset 3px 0 0 rgba(255,0,0,0.04),inset -3px 0 0 rgba(0,255,255,0.01)} 50%{box-shadow:inset 1px 0 0 rgba(255,0,0,0.01),inset -1px 0 0 rgba(0,255,255,0.04)} 75%{box-shadow:inset 4px 0 0 rgba(255,0,0,0.03),inset -2px 0 0 rgba(0,255,255,0.03)} }
+.vhs-flicker-subtle { animation: subtleFlicker 0.2s infinite; z-index: 10; }
+@keyframes subtleFlicker { 0%{background:transparent} 50%{background:rgba(0,0,0,0.02)} 51%{background:transparent} 100%{background:transparent} }
+
+.description-content, .concerts-content, .tracks-content, .contacts-content { position: relative; z-index: 20; }
+#description, #concerts { position: relative; background: #0a0000; overflow: hidden; }
+
+/* ============ КОМПОНЕНТ 2: ОПИСАНИЕ ============ */
+.description-text { font-size: 1.4vw !important; line-height: 1.9 !important; color: #ffffff !important; background: rgba(0,0,0,0.75) !important; padding: 25px 35px !important; border-left: 4px solid #ff1744 !important; backdrop-filter: blur(8px) !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.9), -1px -1px 2px rgba(0,0,0,0.7) !important; text-align: left; margin-bottom: 30px; }
+#description h2, #concerts h2, #members h2, #tracks h2, #shorts h2, #clip h2, #contacts h2 { font-size: 4vw; margin-bottom: 30px; background: rgba(0,0,0,0.7) !important; display: inline-block !important; padding: 15px 30px !important; backdrop-filter: blur(8px); color: #ff4444 !important; text-shadow: 3px 3px 6px rgba(0,0,0,0.9), 0 0 30px rgba(255,23,68,0.8) !important; }
+.disclaimers { margin-top: 40px; font-size: 0.75vw; background: rgba(0,0,0,0.9) !important; backdrop-filter: blur(12px); border: 1px solid #333; padding: 20px; text-align: left; }
+.disclaimer { margin: 5px 0; color: #999999 !important; font-family: 'Courier New', monospace !important; }
+
+/* ============ КОМПОНЕНТ 3: КОНЦЕРТЫ ============ */
+.concert-item { border: 2px solid #ff1744; padding: 30px; margin: 20px 0; background: rgba(0,0,0,0.75) !important; backdrop-filter: blur(10px); transition: all 0.3s; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+.concert-item:hover { background: rgba(255,23,68,0.2) !important; transform: scale(1.05); box-shadow: 0 0 30px rgba(255,23,68,0.3); }
+.concert-date { display: block; font-size: 3vw; color: #ff4444; font-family: 'Nosifer', cursive; text-shadow: 0 0 20px #ff1744; }
+.concert-title { display: block; font-size: 1.5vw; color: #ffffff; margin: 10px 0; }
+.concert-venue { display: block; color: #dddddd; font-size: 1vw; }
+.coming-soon { margin-top: 30px; color: #ffffff; font-size: 1.2vw; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); padding: 12px 25px; display: inline-block; }
+
+/* ============ КОМПОНЕНТ 4: УЧАСТНИКИ ============ */
+#members { background: #0a0a0a; padding: 60px 20px; }
+.members-content { max-width: 1000px !important; margin: 0 auto; }
+.members-intro { font-size: 1.1vw; color: #ffffff; margin-bottom: 50px; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); padding: 20px 25px; display: inline-block; border-bottom: 1px solid #ff1744; }
+.tic-tac-toe-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; background: #ff1744; border: 3px solid #ff1744; max-width: 900px; margin: 0 auto 40px; box-shadow: 0 0 40px rgba(255,23,68,0.3); }
+.cell { background-color: #0a0a0a; background-size: cover; background-position: center; padding: 25px 20px; display: flex; align-items: center; justify-content: center; transition: all 0.5s ease; min-height: 280px; position: relative; overflow: hidden; }
+.cell-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,0,0,0.85); transition: all 0.4s ease; z-index: 1; }
+.cell::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px); z-index: 2; pointer-events: none; opacity: 0.5; }
+.cell:hover .cell-overlay { background: rgba(10,0,0,0.6); }
+.cell:hover { transform: scale(1.02); z-index: 5; box-shadow: 0 0 30px rgba(255,23,68,0.5); cursor: pointer; }
+.cell-content { text-align: center; position: relative; z-index: 4; background: rgba(0,0,0,0.7) !important; padding: 20px; backdrop-filter: blur(5px); }
+.cell-number { font-size: 0.8vw; color: #ff8888; opacity: 0.9; margin-bottom: 10px; letter-spacing: 3px; }
+.cell-name { font-size: 2.2vw; color: #ff5555; margin-bottom: 8px; text-shadow: 2px 2px 4px rgba(0,0,0,0.9), 0 0 20px rgba(255,23,68,0.8); letter-spacing: 5px; }
+.cell-role { font-size: 0.9vw; color: #ffaaaa; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 15px; }
+.cell-desc { font-size: 0.9vw; color: #ffffff; line-height: 1.7; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); }
+.cell-quote { font-size: 0.85vw; color: #ffffff; font-style: italic; border-top: 1px solid #ff1744; padding-top: 10px; margin-top: 10px; background: rgba(0,0,0,0.5); display: inline-block; padding: 8px 12px; font-family: 'Rubik Glitch', cursive; }
+.center-cell-bg { background-color: #1a0000 !important; }
+.center-overlay { background: rgba(10,0,0,0.7) !important; }
+.center-cell .cell-name { font-size: 2.5vw; animation: centerPulse 1s infinite; }
+@keyframes centerPulse { 0%,100%{text-shadow:0 0 20px rgba(255,23,68,0.9),0 0 40px rgba(255,23,68,0.5);transform:scale(1)} 50%{text-shadow:0 0 40px rgba(255,23,68,1),0 0 80px rgba(255,23,68,0.8);transform:scale(1.05)} }
+.empty-cell-bg { background: #050000 !important; background-image: linear-gradient(45deg,rgba(255,23,68,0.05) 25%,transparent 25%),linear-gradient(-45deg,rgba(255,23,68,0.05) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,rgba(255,23,68,0.05) 75%),linear-gradient(-45deg,transparent 75%,rgba(255,23,68,0.05) 75%) !important; background-size: 20px 20px; }
+.empty-cell { opacity: 0.5; }
+.empty-cell:hover { opacity: 0.9; }
+.cell-symbol { font-size: 6vw; color: #ff1744; opacity: 0.3; text-shadow: 0 0 30px rgba(255,23,68,0.5); animation: pulse 2s infinite; }
+.cell-empty-text { font-size: 1.1vw; color: #ffffff; background: rgba(0,0,0,0.6); display: inline-block; padding: 8px 15px; }
+.members-footer { margin-top: 30px; font-size: 2vw; color: #ff1744; text-shadow: 0 0 20px #ff1744; animation: glitchText 0.3s infinite; background: rgba(0,0,0,0.7); display: inline-block; padding: 15px 30px; backdrop-filter: blur(8px); }
+.footer-sub { font-size: 1.2vw; color: #ffffff; }
+
+/* ============ КОМПОНЕНТ 5: ТРЕКИ ============ */
+#tracks { position: relative; background: #0a0000; padding: 60px 20px; }
+.tracks-bg { background: radial-gradient(ellipse at 30% 20%, #1a0000 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, #0d0000 0%, transparent 50%), #0a0000 !important; }
+.tracks-intro { font-size: 1.1vw; color: #ffffff; margin-bottom: 50px; background: rgba(0,0,0,0.7); padding: 20px 25px; backdrop-filter: blur(8px); display: inline-block; border-bottom: 1px solid #ff1744; }
+.tracks-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; background: #ff1744; border: 3px solid #ff1744; max-width: 900px; margin: 0 auto 40px; box-shadow: 0 0 40px rgba(255,23,68,0.3); }
+.track-cell { background: #0a0a0a; padding: 25px 20px; display: flex; align-items: center; justify-content: center; transition: all 0.4s ease; min-height: 300px; position: relative; }
+.track-cell:hover { background: #0f0000; box-shadow: inset 0 0 40px rgba(255,23,68,0.2); transform: scale(1.02); z-index: 5; }
+.track-cell-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px); z-index: 1; pointer-events: none; }
+.track-cell-content { text-align: center; position: relative; z-index: 2; width: 100%; }
+.track-badge { display: inline-block; padding: 5px 15px; font-size: 0.7vw; letter-spacing: 3px; margin-bottom: 15px; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
+.badge-best { color: #ffd700; border: 1px solid #ffd700; text-shadow: 0 0 10px #ffd700; animation: badgeGlow 2s infinite; }
+.badge-brutal { color: #ff4444; border: 1px solid #ff4444; }
+.badge-dark { color: #8888ff; border: 1px solid #8888ff; }
+.badge-meh { color: #888888; border: 1px solid #888888; }
+.badge-new { color: #00ff44; border: 1px solid #00ff44; text-shadow: 0 0 15px #00ff44; animation: badgePulse 1s infinite; font-size: 0.8vw; }
+.badge-first { color: #ff8800; border: 1px solid #ff8800; }
+@keyframes badgeGlow { 0%,100%{box-shadow:0 0 5px #ffd700} 50%{box-shadow:0 0 20px #ffd700} }
+@keyframes badgePulse { 0%,100%{box-shadow:0 0 5px #00ff44;transform:scale(1)} 50%{box-shadow:0 0 25px #00ff44;transform:scale(1.05)} }
+.track-name { font-family: 'Metal Mania', 'Nosifer', cursive; font-size: 1.8vw; color: #ff4444; margin-bottom: 12px; text-shadow: 0 0 15px rgba(255,23,68,0.7), 2px 2px 4px rgba(0,0,0,0.9); letter-spacing: 3px; background: rgba(0,0,0,0.6); display: inline-block; padding: 5px 15px; }
+.track-desc { font-size: 0.85vw; color: #ffffff; line-height: 1.6; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); background: rgba(0,0,0,0.6); padding: 10px 15px; backdrop-filter: blur(5px); }
+.track-player { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.8); padding: 10px; backdrop-filter: blur(8px); border: 1px solid #ff1744; }
+.track-play-btn { background: rgba(255,23,68,0.2); border: 1px solid #ff1744; color: #ff1744; padding: 8px 15px; font-family: 'Metal Mania', cursive; font-size: 0.8vw; cursor: pointer; transition: all 0.3s; letter-spacing: 2px; white-space: nowrap; }
+.track-play-btn:hover { background: #ff1744; color: #000; box-shadow: 0 0 20px rgba(255,23,68,0.5); }
+.track-play-btn.playing { background: #ff1744; color: #000; animation: btnPulse 0.5s infinite; }
+@keyframes btnPulse { 0%,100%{box-shadow:0 0 10px #ff1744} 50%{box-shadow:0 0 30px #ff1744} }
+.track-progress { flex: 1; height: 4px; background: rgba(255,23,68,0.2); position: relative; cursor: pointer; min-width: 40px; }
+.track-progress-fill { height: 100%; background: #ff1744; width: 0%; transition: width 0.1s linear; box-shadow: 0 0 10px #ff1744; }
+.track-time { font-family: 'Courier New', monospace; font-size: 0.7vw; color: #ffffff; min-width: 35px; text-align: right; }
+.center-track .track-name { font-size: 2vw; animation: centerPulse 1s infinite; }
+.tracks-footer { margin-top: 30px; font-size: 2vw; color: #ff1744; text-shadow: 0 0 20px #ff1744; animation: glitchText 0.3s infinite; font-family: 'Nosifer', 'Metal Mania', cursive; background: rgba(0,0,0,0.7); display: inline-block; padding: 15px 30px; backdrop-filter: blur(8px); }
+.empty-track { opacity: 0.4; }
+.empty-track:hover { opacity: 0.7; background: #0f0000; }
+.track-empty-symbol { font-size: 5vw; color: #ff1744; opacity: 0.3; text-shadow: 0 0 30px rgba(255,23,68,0.5); animation: pulse 2s infinite; }
+.track-empty-text { font-size: 1vw; color: #ffffff; background: rgba(0,0,0,0.6); display: inline-block; padding: 8px 15px; }
+
+/* ============ КОМПОНЕНТ 6: ШОРТСЫ ============ */
+#shorts { position: relative; background: #0a0000; padding: 60px 20px; }
+.shorts-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at 20% 50%, #1a0000 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, #0d0000 0%, transparent 60%), #0a0000; z-index: 0; }
+.shorts-intro { font-size: 1.1vw; color: #ffffff; margin-bottom: 50px; background: rgba(0,0,0,0.7); padding: 20px 25px; backdrop-filter: blur(8px); display: inline-block; }
+.shorts-carousel-container { width: 100%; overflow: hidden; padding: 20px 0; perspective: 1000px; }
+.shorts-carousel { display: flex; gap: 20px; animation: carouselRotate 20s linear infinite; width: max-content; }
+.shorts-carousel:hover { animation-play-state: paused; }
+@keyframes carouselRotate { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+.short-item { flex-shrink: 0; width: 280px; height: 400px; border: 2px solid #ff1744; cursor: pointer; transition: all 0.4s; position: relative; overflow: hidden; background: #0a0a0a; box-shadow: 0 0 20px rgba(255,23,68,0.2); }
+.short-item:hover { transform: scale(1.08) translateY(-10px); border-color: #ff5252; box-shadow: 0 0 40px rgba(255,23,68,0.5), 0 15px 30px rgba(0,0,0,0.5); z-index: 10; }
+.short-preview { width: 100%; height: 100%; position: relative; }
+.short-video-preview { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7) contrast(1.2) saturate(0.8); }
+.short-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.4) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s; }
+.short-item:hover .short-overlay { background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.3) 100%); }
+.short-play-icon { font-size: 4vw; color: #ff1744; text-shadow: 0 0 30px rgba(255,23,68,0.8); opacity: 0.8; transition: all 0.3s; margin-bottom: 15px; }
+.short-item:hover .short-play-icon { opacity: 1; transform: scale(1.2); text-shadow: 0 0 50px rgba(255,23,68,1); }
+.short-title { font-family: 'Metal Mania', 'Nosifer', cursive; font-size: 1.8vw; color: #ffffff; text-shadow: 2px 2px 4px rgba(0,0,0,0.9), 0 0 20px rgba(255,23,68,0.5); letter-spacing: 3px; margin-bottom: 8px; }
+.short-desc { font-size: 0.9vw; color: #cccccc; }
+.short-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100000; }
+.short-modal.active { display: flex; align-items: center; justify-content: center; }
+.short-modal-backdrop { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); }
+.short-modal-content { position: relative; z-index: 1; width: 90%; max-width: 900px; animation: modalScaleIn 0.4s cubic-bezier(0.4,0,0.2,1); }
+@keyframes modalScaleIn { from{transform:scale(0.8);opacity:0} to{transform:scale(1);opacity:1} }
+.short-modal-close { position: absolute; top: -50px; right: 0; background: rgba(255,23,68,0.2); border: 1px solid #ff1744; color: #ff1744; padding: 10px 25px; font-family: 'Metal Mania', cursive; font-size: 1.2vw; cursor: pointer; transition: all 0.3s; letter-spacing: 2px; z-index: 2; }
+.short-modal-close:hover { background: #ff1744; color: #000; box-shadow: 0 0 30px rgba(255,23,68,0.5); }
+.short-modal-video { width: 100%; max-height: 80vh; background: #000; border: 2px solid #ff1744; box-shadow: 0 0 50px rgba(255,23,68,0.3); }
+.short-modal-title { font-family: 'Metal Mania', cursive; font-size: 1.5vw; color: #ff1744; text-align: center; margin-top: 15px; text-shadow: 0 0 20px rgba(255,23,68,0.5); letter-spacing: 3px; }
+.shorts-footer { margin-top: 40px; font-size: 2vw; color: #ff1744; text-shadow: 0 0 20px #ff1744; animation: glitchText 0.3s infinite; font-family: 'Nosifer', 'Metal Mania', cursive; background: rgba(0,0,0,0.7); display: inline-block; padding: 15px 30px; backdrop-filter: blur(8px); }
+
+/* ============ КОМПОНЕНТ 7: КЛИП ============ */
+#clip { position: relative; background: #0a0000; padding: 60px 20px; }
+.clip-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at 50% 30%, #1a0000 0%, transparent 50%), radial-gradient(ellipse at 50% 70%, #0d0000 0%, transparent 50%), #0a0000; z-index: 0; }
+.clip-intro { font-size: 1.1vw; color: #ffffff; margin-bottom: 50px; background: rgba(0,0,0,0.7); padding: 20px 25px; backdrop-filter: blur(8px); display: inline-block; }
+.clip-container { display: flex; flex-direction: column; gap: 30px; margin-bottom: 40px; }
+.clip-frame { position: relative; width: 100%; aspect-ratio: 16/9; border: 3px solid #ff1744; box-shadow: 0 0 40px rgba(255,23,68,0.3), 0 0 80px rgba(255,23,68,0.1); overflow: hidden; background: #000; transition: all 0.4s; }
+.clip-frame:hover { box-shadow: 0 0 60px rgba(255,23,68,0.5), 0 0 120px rgba(255,23,68,0.2); border-color: #ff5252; }
+.clip-video { width: 100%; height: 100%; object-fit: contain; position: relative; z-index: 1; }
+.clip-vhs-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+.clip-scanlines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px); animation: scanlinesMove 0.1s linear infinite; }
+.clip-tracking { position: absolute; top: 0; left: 0; width: 100%; height: 100%; animation: clipTracking 5s linear infinite; }
+@keyframes clipTracking { 0%{box-shadow:inset 0 0 0 transparent;transform:translateY(-100%)} 50%{box-shadow:inset 0 30% 0 0 rgba(255,255,255,0.03)} 100%{box-shadow:inset 0 0 0 transparent;transform:translateY(100%)} }
+.clip-info { text-align: center; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); padding: 25px 30px; border: 1px solid #ff1744; }
+.clip-title { font-family: 'Metal Mania', 'Nosifer', cursive; font-size: 2vw; color: #ff4444; margin-bottom: 15px; text-shadow: 0 0 20px rgba(255,23,68,0.8); letter-spacing: 3px; }
+.clip-actions { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+.clip-btn { display: inline-block; padding: 12px 30px; font-family: 'Metal Mania', cursive; font-size: 1vw; letter-spacing: 3px; cursor: pointer; transition: all 0.3s; text-decoration: none; border: 2px solid #ff1744; position: relative; overflow: hidden; }
+.clip-fullscreen-btn { background: rgba(255,23,68,0.1); color: #ff1744; }
+.clip-download-btn { background: rgba(255,23,68,0.05); color: #ff5252; }
+.clip-btn:hover { background: #ff1744; color: #000; box-shadow: 0 0 30px rgba(255,23,68,0.5); transform: translateY(-3px); }
+.clip-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,23,68,0.3), transparent); transition: left 0.5s; }
+.clip-btn:hover::before { left: 100%; }
+.clip-footer { margin-top: 20px; font-size: 1.8vw; color: #ff1744; text-shadow: 0 0 20px #ff1744; animation: glitchText 0.3s infinite; font-family: 'Nosifer', 'Metal Mania', cursive; background: rgba(0,0,0,0.7); display: inline-block; padding: 15px 30px; backdrop-filter: blur(8px); }
+
+/* ============ КОМПОНЕНТ 8: КОНТАКТЫ ============ */
+#contacts { position: relative; background: #0a0000; }
+.contacts-bg { background: radial-gradient(ellipse at 50% 50%, #1a0000 0%, transparent 60%), #0a0000 !important; }
+.contacts-intro { font-size: 1.1vw; color: #ffffff; margin-bottom: 50px; background: rgba(0,0,0,0.7); padding: 20px 25px; backdrop-filter: blur(8px); display: inline-block; border-bottom: 1px solid #ff1744; }
+.social-links { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-bottom: 50px; }
+.social-link { display: flex; flex-direction: column; align-items: center; padding: 30px 40px; border: 2px solid #ff1744; color: #ff1744; text-decoration: none; transition: all 0.4s; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); position: relative; overflow: hidden; min-width: 250px; }
+.social-link::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,23,68,0.2), transparent); transition: left 0.5s; }
+.social-link:hover::before { left: 100%; }
+.social-link:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(255,23,68,0.3); border-color: #ff5252; }
+.social-vk:hover { border-color: #4a76a8; box-shadow: 0 20px 40px rgba(74,118,168,0.3); }
+.social-tg:hover { border-color: #2aabee; box-shadow: 0 20px 40px rgba(42,171,238,0.3); }
+.social-icon { font-family: 'Metal Mania', cursive; font-size: 3vw; margin-bottom: 10px; text-shadow: 0 0 20px rgba(255,23,68,0.8); transition: all 0.3s; }
+.social-link:hover .social-icon { text-shadow: 0 0 40px rgba(255,23,68,1); transform: scale(1.2); }
+.social-name { font-family: 'Metal Mania', cursive; font-size: 1.5vw; letter-spacing: 5px; margin-bottom: 8px; color: #ffffff; }
+.social-handle { font-family: 'Courier New', monospace; font-size: 0.9vw; color: #ff8a80; letter-spacing: 2px; }
+.final-message p:first-child { font-size: 2vw; color: #ff1744; font-weight: bold; text-shadow: 0 0 20px #ff1744; background: rgba(0,0,0,0.7); display: inline-block; padding: 15px 25px; backdrop-filter: blur(8px); }
+.koza-small { font-size: 5vw; color: #ff1744; margin-top: 20px; text-shadow: 0 0 30px #ff1744; animation: glitchText 0.3s infinite; font-family: 'Nosifer', cursive; }
+
+/* ============ АДАПТИВНОСТЬ ============ */
+@media (max-width: 768px) {
+    .koza-text { font-size: 15vw; }
+    .subtitle { font-size: 6vw; }
+    .subtitle-sub { font-size: 3vw; }
+    .description-text { font-size: 3vw !important; }
+    .tic-tac-toe-grid, .tracks-grid { grid-template-columns: 1fr; }
+    .cell { min-height: 200px; }
+    .cell-name { font-size: 6vw; }
+    .cell-desc { font-size: 2.5vw; }
+    .track-cell { min-height: 200px; }
+    .track-name { font-size: 5vw; }
+    .track-desc { font-size: 2.5vw; }
+    .short-item { width: 200px; height: 300px; }
+    .short-title { font-size: 3.5vw; }
+    .social-links { flex-direction: column; align-items: center; }
+    #description h2, #concerts h2, #members h2, #tracks h2, #shorts h2, #clip h2, #contacts h2 { font-size: 8vw; }
+}
