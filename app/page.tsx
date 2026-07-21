@@ -1,5 +1,6 @@
 import { readFile } from 'fs/promises'
 import { join } from 'path'
+import { SkullIcon } from './icons'
 
 export default async function HomePage() {
   // Читаем index.html из public
@@ -33,7 +34,9 @@ function ServerError() {
       alignItems: 'center',
       justifyContent: 'center'
     }}>
-      <h1 style={{ fontSize: '4em', textShadow: '0 0 30px #ff1744' }}>💀 500</h1>
+      <h1 style={{ fontSize: '4em', textShadow: '0 0 30px #ff1744', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.2em' }}>
+        <SkullIcon /> 500
+      </h1>
       <p style={{ fontSize: '1.5em', color: '#ff5252' }}>
         index.html не найден в public/
       </p>

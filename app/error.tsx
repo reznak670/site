@@ -1,5 +1,7 @@
 'use client'
 
+import { SkullIcon, RefreshIcon } from './icons'
+
 export default function ErrorPage({
   error,
   reset,
@@ -20,7 +22,9 @@ export default function ErrorPage({
       alignItems: 'center',
       justifyContent: 'center'
     }}>
-      <h1 style={{ fontSize: '4em', textShadow: '0 0 30px #ff1744', margin: 0 }}>💀 500</h1>
+      <h1 style={{ fontSize: '4em', textShadow: '0 0 30px #ff1744', margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.2em' }}>
+        <SkullIcon /> 500
+      </h1>
       <p style={{ fontSize: '1.3em', color: '#ff5252' }}>
         Всё пошло по пизде
       </p>
@@ -38,10 +42,13 @@ export default function ErrorPage({
           marginTop: '20px',
           fontFamily: 'Metal Mania, cursive',
           fontSize: '1em',
-          letterSpacing: '2px'
+          letterSpacing: '2px',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.5em'
         }}
       >
-        🔄 ПОПРОБОВАТЬ ЕЩЁ РАЗ
+        <RefreshIcon /> ПОПРОБОВАТЬ ЕЩЁ РАЗ
       </button>
     </div>
   )

@@ -1,3 +1,5 @@
+import { SkullIcon } from './icons'
+
 export default function NotFound() {
   return (
     <div style={{
@@ -12,7 +14,9 @@ export default function NotFound() {
       alignItems: 'center',
       justifyContent: 'center'
     }}>
-      <h1 style={{ fontSize: '6em', textShadow: '0 0 30px #ff1744', margin: 0 }}>💀 404</h1>
+      <h1 style={{ fontSize: '6em', textShadow: '0 0 30px #ff1744', margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.15em' }}>
+        <SkullIcon /> 404
+      </h1>
       <p style={{ fontSize: '1.5em', color: '#ff5252' }}>
         Этой страницы не существует
       </p>
