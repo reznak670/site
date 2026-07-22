@@ -1,0 +1,52 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { getTracks, addTrack, deleteTrack } from '@/lib/store'
+import { isAuthed } from '@/lib/auth'
+import { saveAudioFile, UploadError } from '@/lib/uploads'
+
+export const dynamic = 'force-dynamic'
+
+export async function GET() {
+  const tracks = await getTracks()
+  return NextResponse.json({ tracks })
+}
+
+export async function POST(req: NextRequest) {
+  if (!isAuthed(req)) {
+    return NextResponse.json({ error: 'Требуется авторизация' }, { status: 401 })
+  }
+
+  const form = await req.formData().catch(() => null)
+  if (!form) return NextResponse.json({ error: 'Некорректный запрос' }, { status: 400 })
+
+  const name = String(form.get('name') || '').trim().slice(0, 100)
+  const desc = String(form.get('desc') || '').trim().slice(0, 400)
+  const badge = String(form.get('badge') || 'НОВЫЙ').trim().slice(0, 30)
+  const badgeVariant = String(form.get('badgeVariant') || 'new').trim().slice(0, 20)
+  const file = form.get('file')
+
+  if (!name || !(file instanceof File) || file.size === 0) {
+    return NextResponse.json({ error: 'Укажите название и аудиофайл трека' }, { status: 400 })
+  }
+
+  try {
+    const src = await saveAudioFile(file)
+    const track = await addTrack({ name, desc, badge, badgeVariant, src })
+    return NextResponse.json({ track })
+  } catch (e) {
+    const message = e instanceof UploadError ? e.message : 'Ошибка загрузки файла'
+    return NextResponse.json({ error: message }, { status: 400 })
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  if (!isAuthed(req)) {
+    return NextResponse.json({ error: 'Требуется авторизация' }, { status: 401 })
+  }
+
+  const body = await req.json().catch(() => null)
+  const id = body && typeof body.id === 'string' ? body.id : ''
+  if (!id) return NextResponse.json({ error: 'id обязателен' }, { status: 400 })
+
+  await deleteTrack(id)
+  return NextResponse.json({ ok: true })
+}

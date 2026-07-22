@@ -31,7 +31,9 @@ export default function NotFound() {
           padding: '12px 25px',
           textDecoration: 'none',
           marginTop: '20px',
-          fontFamily: 'Metal Mania, cursive',
+          fontFamily: '"Oswald", "Arial Narrow", sans-serif',
+          fontWeight: 600,
+          textTransform: 'uppercase',
           fontSize: '1.2em',
           letterSpacing: '2px',
           transition: 'all 0.3s'

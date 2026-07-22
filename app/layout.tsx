@@ -37,6 +37,7 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=PT+Mono&family=Rubik+Distressed&family=Rubik+Dirt&family=Rubik+Burned&family=Rubik+Wet+Paint&display=swap" rel="stylesheet" />
       </head>
       <body style={{ margin: 0, padding: 0, background: '#0a0000' }}>
         {children}

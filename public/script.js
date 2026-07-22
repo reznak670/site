@@ -1,4 +1,12 @@
 // Bloody Scissors — главный скрipt. Одна точка входа, именованные init-функции.
+
+// На мобильной версии оставляем только эффект VHS — остальные декоративные
+// анимации (параллакс, капли крови, плавное появление секций, авто-прокрутка
+// ленты шортсов) там просто не запускаем.
+function isMobileView() {
+    return window.matchMedia('(max-width: 768px)').matches;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initTimestamp();
     initGlitch();
@@ -8,13 +16,56 @@ document.addEventListener('DOMContentLoaded', () => {
     initSectionReveal();
     initParallax();
     initAudioPlayer();
+    initDynamicTracks();
     initShorts();
     initClip();
     initBloodClicks();
     initSaveData();
+    initAdminGesture();
 
     console.log('Bloody Scissors — КОЗААА!');
 });
+
+// ============ СЕКРЕТНЫЙ ВХОД В АДМИНКУ ============
+// Десктоп: 5x буква "g" с клавиатуры. Мобильная версия (клавиатуры нет):
+// 5 тапов по букве "К" в приветственной надписи "КОЗААА" на главном экране.
+function initAdminGesture() {
+    const RESET_MS = 1200;
+
+    let count = 0;
+    let lastTime = 0;
+    document.addEventListener('keydown', (e) => {
+        const tag = document.activeElement && document.activeElement.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || (document.activeElement && document.activeElement.isContentEditable)) return;
+        if (e.key.toLowerCase() !== 'g') { count = 0; return; }
+
+        const now = Date.now();
+        if (now - lastTime > RESET_MS) count = 0;
+        lastTime = now;
+        count++;
+
+        if (count >= 5) {
+            count = 0;
+            window.location.href = '/admin';
+        }
+    });
+
+    const kozaK = document.getElementById('kozaK');
+    if (!kozaK) return;
+    let tapCount = 0;
+    let lastTap = 0;
+    kozaK.addEventListener('click', () => {
+        const now = Date.now();
+        if (now - lastTap > RESET_MS) tapCount = 0;
+        lastTap = now;
+        tapCount++;
+
+        if (tapCount >= 5) {
+            tapCount = 0;
+            window.location.href = '/admin';
+        }
+    });
+}
 
 // ============ VHS ТАЙМКОД ============
 function initTimestamp() {
@@ -140,6 +191,7 @@ function initSectionBackgrounds() {
 
 // ============ ПЛАВНОЕ ПОЯВЛЕНИЕ СЕКЦИЙ ============
 function initSectionReveal() {
+    if (isMobileView()) return;
     const sections = document.querySelectorAll('.section');
     const obs = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -161,6 +213,7 @@ function initSectionReveal() {
 
 // ============ ПАРАЛЛАКС ============
 function initParallax() {
+    if (isMobileView()) return;
     const bgs = document.querySelectorAll('.section-bg');
     const kozaText = document.querySelector('#hero .koza-text');
     let ticking = false;
@@ -190,88 +243,220 @@ function initParallax() {
     }, { passive: true });
 }
 
-// ============ АУДИОПЛЕЕР ============
-function initAudioPlayer() {
-    function formatTime(seconds) {
-        const m = Math.floor(seconds / 60);
-        const s = Math.floor(seconds % 60);
-        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+// ============ АУДИОПЛЕЕР (список в духе Spotify/VK + нижний бар "сейчас играет") ============
+// bindTrackRow вынесена на уровень модуля, чтобы строки, добавленные позже через
+// initDynamicTracks (треки из админки), тоже получали плеер и делили один и тот же
+// "текущий проигрываемый трек" со статичными строками — play/pause/timeupdate/ended
+// у самого <audio> это единственный источник истины и для строки, и для нижнего бара.
+let __trackPlayerCurrent = null;
+let __nowPlayingAudio = null;
+const __nowPlayingEls = {};
+
+function __formatTrackTime(seconds) {
+    if (!isFinite(seconds)) return '00:00';
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function initNowPlayingBar() {
+    __nowPlayingEls.bar = document.getElementById('nowPlayingBar');
+    if (!__nowPlayingEls.bar) return;
+    __nowPlayingEls.name = document.getElementById('nowPlayingName');
+    __nowPlayingEls.badge = document.getElementById('nowPlayingBadge');
+    __nowPlayingEls.playBtn = document.getElementById('nowPlayingPlayBtn');
+    __nowPlayingEls.current = document.getElementById('nowPlayingCurrent');
+    __nowPlayingEls.duration = document.getElementById('nowPlayingDuration');
+    __nowPlayingEls.seek = document.getElementById('nowPlayingSeek');
+    __nowPlayingEls.fill = document.getElementById('nowPlayingFill');
+    __nowPlayingEls.download = document.getElementById('nowPlayingDownload');
+    __nowPlayingEls.close = document.getElementById('nowPlayingClose');
+
+    __nowPlayingEls.playBtn.addEventListener('click', () => {
+        if (!__nowPlayingAudio) return;
+        if (__nowPlayingAudio.paused) __nowPlayingAudio.play().catch(() => {});
+        else __nowPlayingAudio.pause();
+    });
+
+    function seek(e) {
+        if (!__nowPlayingAudio || !__nowPlayingAudio.duration) return;
+        const rect = __nowPlayingEls.seek.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const ratio = Math.max(0, Math.min((clientX - rect.left) / rect.width, 1));
+        __nowPlayingAudio.currentTime = ratio * __nowPlayingAudio.duration;
     }
-    function setIcon(btn, playing) {
-        const use = btn.querySelector('use');
-        if (use) use.setAttribute('href', playing ? '#icon-pause' : '#icon-play');
-    }
+    __nowPlayingEls.seek.addEventListener('click', seek);
+    __nowPlayingEls.seek.addEventListener('touchstart', seek, { passive: true });
+    __nowPlayingEls.seek.addEventListener('touchmove', seek);
 
-    let current = null;
-
-    document.querySelectorAll('.track-card').forEach(card => {
-        const audio = card.querySelector('.track-audio');
-        const playBtn = card.querySelector('.track-play');
-        const progressFill = card.querySelector('.track-progress-fill');
-        const progressBar = card.querySelector('.track-progress');
-        const timeDisplay = card.querySelector('.track-time');
-        if (!audio || !playBtn) return;
-
-        let raf = null;
-        function updateProgress() {
-            if (audio.duration) {
-                progressFill.style.width = (audio.currentTime / audio.duration) * 100 + '%';
-                timeDisplay.textContent = formatTime(audio.currentTime);
-            }
-            if (!audio.paused) raf = requestAnimationFrame(updateProgress);
-        }
-        function reset() {
-            audio.pause(); audio.currentTime = 0;
-            playBtn.classList.remove('is-playing'); setIcon(playBtn, false);
-            progressFill.style.width = '0%'; timeDisplay.textContent = '00:00';
-            if (raf) cancelAnimationFrame(raf);
-        }
-
-        playBtn.addEventListener('click', () => {
-            if (audio.paused) {
-                if (current && current !== reset) current();
-                audio.play().then(() => {
-                    playBtn.classList.add('is-playing'); setIcon(playBtn, true);
-                    updateProgress();
-                    current = reset;
-                }).catch(() => {});
-            } else {
-                reset();
-                current = null;
-            }
-        });
-
-        if (progressBar) {
-            progressBar.addEventListener('click', (e) => {
-                if (!audio.duration) return;
-                const rect = progressBar.getBoundingClientRect();
-                const ratio = Math.max(0, Math.min((e.clientX - rect.left) / rect.width, 1));
-                audio.currentTime = ratio * audio.duration;
-                progressFill.style.width = ratio * 100 + '%';
-                timeDisplay.textContent = formatTime(audio.currentTime);
-            });
-            progressBar.addEventListener('touchstart', (e) => seekTouch(e), { passive: true });
-            progressBar.addEventListener('touchmove', (e) => seekTouch(e));
-            function seekTouch(e) {
-                if (!audio.duration) return;
-                const rect = progressBar.getBoundingClientRect();
-                const x = Math.max(0, Math.min(e.touches[0].clientX - rect.left, rect.width));
-                const ratio = x / rect.width;
-                audio.currentTime = ratio * audio.duration;
-                progressFill.style.width = ratio * 100 + '%';
-                timeDisplay.textContent = formatTime(audio.currentTime);
-            }
-        }
-
-        audio.addEventListener('ended', () => { reset(); current = null; });
-        audio.addEventListener('error', () => {
-            playBtn.disabled = true;
-            playBtn.style.opacity = '0.4';
-        });
+    __nowPlayingEls.close.addEventListener('click', () => {
+        if (__nowPlayingAudio) { __nowPlayingAudio.pause(); __nowPlayingAudio.currentTime = 0; }
+        hideNowPlaying();
     });
 }
 
-// ============ ШОРТСЫ (карусель + модалка) ============
+function showNowPlaying(row, audio) {
+    if (!__nowPlayingEls.bar) return;
+    __nowPlayingAudio = audio;
+    __nowPlayingEls.name.textContent = row.dataset.name || '';
+    __nowPlayingEls.badge.textContent = row.dataset.badge || '';
+    __nowPlayingEls.download.href = audio.currentSrc || audio.src;
+    __nowPlayingEls.bar.classList.add('is-active');
+    document.body.classList.add('has-now-playing');
+    updateNowPlayingIcon();
+}
+
+function updateNowPlayingIcon() {
+    if (!__nowPlayingEls.playBtn) return;
+    const use = __nowPlayingEls.playBtn.querySelector('use');
+    const playing = __nowPlayingAudio && !__nowPlayingAudio.paused;
+    if (use) use.setAttribute('href', playing ? '#icon-pause' : '#icon-play');
+}
+
+function updateNowPlayingProgress(audio) {
+    if (!__nowPlayingEls.bar || __nowPlayingAudio !== audio || !audio.duration) return;
+    __nowPlayingEls.fill.style.width = (audio.currentTime / audio.duration) * 100 + '%';
+    __nowPlayingEls.current.textContent = __formatTrackTime(audio.currentTime);
+    __nowPlayingEls.duration.textContent = __formatTrackTime(audio.duration);
+}
+
+function hideNowPlaying() {
+    if (!__nowPlayingEls.bar) return;
+    __nowPlayingEls.bar.classList.remove('is-active');
+    document.body.classList.remove('has-now-playing');
+    __nowPlayingAudio = null;
+}
+
+function bindTrackRow(row) {
+    const audio = row.querySelector('.track-audio');
+    const playBtn = row.querySelector('.track-row-play');
+    const progressFill = row.querySelector('.track-progress-fill');
+    const progressBar = row.querySelector('.track-progress');
+    const timeDisplay = row.querySelector('.track-time');
+    if (!audio || !playBtn) return;
+
+    function setRowPlaying(playing) {
+        playBtn.classList.toggle('is-playing', playing);
+        row.classList.toggle('is-playing', playing);
+    }
+
+    playBtn.addEventListener('click', () => {
+        if (audio.paused) {
+            if (__trackPlayerCurrent && __trackPlayerCurrent !== audio) __trackPlayerCurrent.pause();
+            audio.play().catch(() => {});
+        } else {
+            audio.pause();
+        }
+    });
+
+    audio.addEventListener('play', () => {
+        __trackPlayerCurrent = audio;
+        setRowPlaying(true);
+        showNowPlaying(row, audio);
+    });
+    audio.addEventListener('pause', () => {
+        setRowPlaying(false);
+        if (__nowPlayingAudio === audio) updateNowPlayingIcon();
+    });
+    audio.addEventListener('timeupdate', () => {
+        if (audio.duration) {
+            progressFill.style.width = (audio.currentTime / audio.duration) * 100 + '%';
+            timeDisplay.textContent = __formatTrackTime(audio.currentTime);
+        }
+        updateNowPlayingProgress(audio);
+    });
+    audio.addEventListener('ended', () => {
+        audio.currentTime = 0;
+        setRowPlaying(false);
+        progressFill.style.width = '0%';
+        timeDisplay.textContent = '00:00';
+        if (__nowPlayingAudio === audio) hideNowPlaying();
+    });
+    audio.addEventListener('error', () => {
+        playBtn.disabled = true;
+        playBtn.style.opacity = '0.4';
+    });
+
+    if (progressBar) {
+        function seekRow(e) {
+            if (!audio.duration) return;
+            const rect = progressBar.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const ratio = Math.max(0, Math.min((clientX - rect.left) / rect.width, 1));
+            audio.currentTime = ratio * audio.duration;
+        }
+        progressBar.addEventListener('click', seekRow);
+        progressBar.addEventListener('touchstart', seekRow, { passive: true });
+        progressBar.addEventListener('touchmove', seekRow);
+    }
+}
+
+function initAudioPlayer() {
+    initNowPlayingBar();
+    document.querySelectorAll('.track-row:not(.track-row--empty)').forEach(bindTrackRow);
+}
+
+// ============ ТРЕКИ ИЗ АДМИНКИ (подгружаются и дорисовываются в список) ============
+function escapeHtml(str) {
+    return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function buildTrackRow(track, index) {
+    const row = document.createElement('div');
+    row.className = 'track-row';
+    row.dataset.name = track.name || '';
+    row.dataset.badge = track.badge || 'НОВЫЙ';
+    const num = String(index).padStart(2, '0');
+    row.innerHTML = `
+        <button class="track-row-play" aria-label="Играть">
+            <span class="track-row-num">${num}</span>
+            <svg class="icon icon--solid track-row-play-icon"><use href="#icon-play"/></svg>
+        </button>
+        <div class="track-row-main">
+            <div class="track-row-title-line">
+                <h3 class="track-row-name">${escapeHtml(track.name)}</h3>
+                <span class="track-badge track-badge--${escapeHtml(track.badgeVariant || 'new')}">${escapeHtml(track.badge || 'НОВЫЙ')}</span>
+            </div>
+            <p class="track-row-desc">${escapeHtml(track.desc || '')}</p>
+        </div>
+        <div class="track-row-progress">
+            <div class="track-progress"><div class="track-progress-fill"></div></div>
+            <span class="track-time">00:00</span>
+        </div>
+        <a class="track-row-download" href="${escapeHtml(track.src)}" download aria-label="Скачать трек">
+            <svg class="icon"><use href="#icon-download"/></svg>
+        </a>
+        <audio class="track-audio" src="${escapeHtml(track.src)}" preload="none"></audio>`;
+    return row;
+}
+
+async function initDynamicTracks() {
+    const list = document.querySelector('.tracks-list');
+    if (!list) return;
+    try {
+        const res = await fetch('/api/tracks');
+        if (!res.ok) return;
+        const { tracks } = await res.json();
+        if (!tracks || !tracks.length) return;
+
+        const emptySlots = Array.from(list.querySelectorAll('.track-row--empty'));
+        let nextIndex = list.querySelectorAll('.track-row:not(.track-row--empty)').length + 1;
+        tracks.forEach((track) => {
+            const row = buildTrackRow(track, nextIndex++);
+            const slot = emptySlots.shift();
+            if (slot) slot.replaceWith(row);
+            else list.appendChild(row);
+            bindTrackRow(row);
+        });
+    } catch {}
+}
+
+// ============ ШОРТСЫ (лента с драгом + вертикальная TikTok-лента) ============
 function initShorts() {
     document.querySelectorAll('.short-video').forEach(video => {
         const obs = new IntersectionObserver((entries) => {
@@ -284,45 +469,256 @@ function initShorts() {
         video.addEventListener('error', () => { video.style.display = 'none'; });
     });
 
-    const modal = document.getElementById('shortModal');
-    const modalVideo = modal ? modal.querySelector('.short-modal-video') : null;
-    const modalTitle = modal ? modal.querySelector('.short-modal-title') : null;
-    if (!modal || !modalVideo) return;
+    const track = document.getElementById('shortsTrack');
+    const carousel = document.getElementById('shortsCarousel');
+    const feed = document.getElementById('shortsFeed');
+    if (!carousel || !feed) return;
 
-    function closeModal() {
-        modalVideo.pause();
-        modalVideo.src = '';
-        modal.classList.remove('is-active');
-        document.body.style.overflow = '';
-    }
-
-    document.querySelectorAll('.short-card').forEach(card => {
-        card.addEventListener('click', () => {
-            const videoSrc = card.dataset.video;
-            const title = card.dataset.title || '';
-            const desc = card.dataset.desc || '';
-            if (!videoSrc) return;
-            modalVideo.src = videoSrc;
-            if (modalTitle) modalTitle.textContent = `${title} — ${desc}`;
-            modal.classList.add('is-active');
-            modalVideo.play().catch(() => {});
-            document.body.style.overflow = 'hidden';
-        });
+    initShortsRibbon(carousel, (card) => {
+        const idx = indexByVideo.get(card.dataset.video);
+        if (idx != null) openFeed(idx);
     });
 
-    const closeBtn = modal.querySelector('.short-modal-close');
-    const backdrop = modal.querySelector('.short-modal-backdrop');
-    if (closeBtn) closeBtn.addEventListener('click', closeModal);
-    if (backdrop) backdrop.addEventListener('click', closeModal);
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+    // ---- уникальные шортсы (дедуп по видео) для вертикальной ленты ----
+    const seen = new Map();
+    Array.from(carousel.querySelectorAll('.short-card')).forEach(card => {
+        const src = card.dataset.video;
+        if (!src || seen.has(src)) return;
+        seen.set(src, { video: src, title: card.dataset.title || '', desc: card.dataset.desc || '' });
+    });
+    const shorts = Array.from(seen.values());
+    const indexByVideo = new Map(shorts.map((s, i) => [s.video, i]));
 
-    let touchStartY = 0;
-    modal.addEventListener('touchstart', (e) => {
-        if (e.target === backdrop) touchStartY = e.touches[0].clientY;
-    }, { passive: true });
-    modal.addEventListener('touchmove', (e) => {
-        if (e.target === backdrop && e.touches[0].clientY - touchStartY > 50) closeModal();
-    }, { passive: true });
+    const feedScroll = document.getElementById('shortsFeedScroll');
+    const feedClose = document.getElementById('shortsFeedClose');
+    const feedMuteBtn = document.getElementById('shortsFeedMute');
+    const feedPrev = document.getElementById('shortsFeedPrev');
+    const feedNext = document.getElementById('shortsFeedNext');
+    const feedHint = document.getElementById('shortsFeedHint');
+    const feedCounter = document.getElementById('shortsFeedCounter');
+
+    let feedBuilt = false;
+    let feedMuted = true;
+    let activeVideo = null;
+    let currentIndex = 0;
+    let hintShown = false;
+    let feedObserver = null;
+
+    function setMuteIcon() {
+        if (!feedMuteBtn) return;
+        feedMuteBtn.innerHTML = `<svg class="icon"><use href="#icon-${feedMuted ? 'mute' : 'sound'}"/></svg>`;
+    }
+
+    function updateNavButtons() {
+        if (feedPrev) feedPrev.disabled = currentIndex <= 0;
+        if (feedNext) feedNext.disabled = currentIndex >= shorts.length - 1;
+        if (feedCounter) feedCounter.textContent = `${currentIndex + 1} / ${shorts.length}`;
+    }
+
+    function buildFeedSlides() {
+        shorts.forEach((s, i) => {
+            const slide = document.createElement('div');
+            slide.className = 'shorts-feed-slide';
+            slide.dataset.index = String(i);
+
+            const bg = document.createElement('video');
+            bg.className = 'shorts-feed-slide-bg';
+            bg.src = s.video; bg.muted = true; bg.loop = true; bg.playsInline = true; bg.preload = 'none'; bg.setAttribute('aria-hidden', 'true');
+
+            const vid = document.createElement('video');
+            vid.className = 'shorts-feed-video';
+            vid.src = s.video; vid.loop = true; vid.playsInline = true; vid.preload = 'none';
+
+            const playIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            playIcon.setAttribute('class', 'icon icon--solid shorts-feed-playicon');
+            const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+            use.setAttribute('href', '#icon-play');
+            playIcon.appendChild(use);
+
+            const info = document.createElement('div');
+            info.className = 'shorts-feed-info';
+            const h3 = document.createElement('h3');
+            h3.className = 'shorts-feed-title'; h3.textContent = s.title;
+            const p = document.createElement('p');
+            p.className = 'shorts-feed-desc'; p.textContent = s.desc;
+            info.appendChild(h3); info.appendChild(p);
+
+            slide.appendChild(bg); slide.appendChild(vid); slide.appendChild(playIcon); slide.appendChild(info);
+
+            slide.addEventListener('click', () => {
+                if (vid.paused) { vid.play().catch(() => {}); slide.classList.remove('is-paused'); }
+                else { vid.pause(); slide.classList.add('is-paused'); }
+            });
+
+            feedScroll.appendChild(slide);
+        });
+
+        feedObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const slide = entry.target;
+                const vid = slide.querySelector('.shorts-feed-video');
+                const bg = slide.querySelector('.shorts-feed-slide-bg');
+                if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+                    currentIndex = Number(slide.dataset.index);
+                    updateNavButtons();
+                    if (activeVideo && activeVideo !== vid) activeVideo.pause();
+                    vid.muted = feedMuted;
+                    vid.play().catch(() => {});
+                    bg.play().catch(() => {});
+                    activeVideo = vid;
+                    slide.classList.remove('is-paused');
+                } else {
+                    vid.pause();
+                    bg.pause();
+                }
+            });
+        }, { root: feedScroll, threshold: [0, 0.6] });
+
+        feedScroll.querySelectorAll('.shorts-feed-slide').forEach(s => feedObserver.observe(s));
+        feedBuilt = true;
+    }
+
+    function goToSlide(i) {
+        const clamped = Math.max(0, Math.min(shorts.length - 1, i));
+        const slide = feedScroll.querySelector(`.shorts-feed-slide[data-index="${clamped}"]`);
+        if (slide) feedScroll.scrollTo({ top: slide.offsetTop, behavior: 'smooth' });
+    }
+
+    function openFeed(index) {
+        if (!feedBuilt) buildFeedSlides();
+        feed.classList.add('is-active');
+        document.body.style.overflow = 'hidden';
+        const slide = feedScroll.querySelector(`.shorts-feed-slide[data-index="${index}"]`);
+        feedScroll.scrollTop = slide ? slide.offsetTop : 0;
+        currentIndex = index;
+        updateNavButtons();
+        if (feedHint) {
+            feedHint.classList.toggle('is-hidden', hintShown);
+            if (!hintShown) { hintShown = true; setTimeout(() => feedHint.classList.add('is-hidden'), 2200); }
+        }
+    }
+
+    function closeFeed() {
+        feed.classList.remove('is-active');
+        document.body.style.overflow = '';
+        feedScroll.querySelectorAll('.shorts-feed-video, .shorts-feed-slide-bg').forEach(v => v.pause());
+        activeVideo = null;
+    }
+
+    if (feedClose) feedClose.addEventListener('click', closeFeed);
+    if (feedMuteBtn) {
+        setMuteIcon();
+        feedMuteBtn.addEventListener('click', () => {
+            feedMuted = !feedMuted;
+            if (activeVideo) activeVideo.muted = feedMuted;
+            setMuteIcon();
+        });
+    }
+    if (feedPrev) feedPrev.addEventListener('click', () => goToSlide(currentIndex - 1));
+    if (feedNext) feedNext.addEventListener('click', () => goToSlide(currentIndex + 1));
+
+    document.addEventListener('keydown', (e) => {
+        if (!feed.classList.contains('is-active')) return;
+        if (e.key === 'Escape') closeFeed();
+        else if (e.key === 'ArrowDown') { e.preventDefault(); goToSlide(currentIndex + 1); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); goToSlide(currentIndex - 1); }
+    });
+}
+
+// ---- горизонтальная лента шортсов: авто-прокрутка + перетаскивание рукой ----
+// Тап определяется целиком через pointer-события (не полагаемся на нативный
+// click после setPointerCapture — в части браузеров он не долетает надёжно).
+function initShortsRibbon(carousel, onCardTap) {
+    const state = { wasDragged: false };
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const AUTO_SPEED = (reduceMotion || isMobileView()) ? 0 : 0.032; // px/ms — на мобильной версии только ручной драг, без авто-хода
+    const TAP_MAX_DIST = 10; // px — терпимее к дрожанию пальца/мыши
+    const TAP_MAX_MS = 600;
+
+    let loopWidth = 0;
+    function measure() { loopWidth = carousel.scrollWidth / 2 || 1; }
+    measure();
+    window.addEventListener('resize', measure);
+
+    let pos = 0;
+    let velocity = 0;
+    let dragging = false;
+    let hovering = false;
+    let lastX = 0;
+    let lastMoveT = 0;
+    let startX = 0;
+    let startY = 0;
+    let startT = 0;
+    let downTarget = null;
+
+    function apply() {
+        pos = ((pos % loopWidth) + loopWidth) % loopWidth;
+        carousel.style.transform = `translate3d(${-pos}px,0,0)`;
+    }
+
+    function frame(t) {
+        if (!dragging) {
+            if (Math.abs(velocity) > 0.002) {
+                pos += velocity * (16.7);
+                velocity *= 0.94;
+            } else if (!hovering) {
+                pos += AUTO_SPEED * 16.7;
+            }
+        }
+        apply();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+    carousel.addEventListener('pointerdown', (e) => {
+        dragging = true;
+        state.wasDragged = false;
+        velocity = 0;
+        lastX = e.clientX;
+        startX = e.clientX;
+        startY = e.clientY;
+        startT = performance.now();
+        lastMoveT = startT;
+        downTarget = e.target.closest ? e.target.closest('.short-card') : null;
+        carousel.classList.add('is-dragging');
+        try { carousel.setPointerCapture(e.pointerId); } catch {}
+    });
+
+    carousel.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        const now = performance.now();
+        const dx = e.clientX - lastX;
+        const totalDist = Math.hypot(e.clientX - startX, e.clientY - startY);
+        if (totalDist > TAP_MAX_DIST) state.wasDragged = true;
+        pos -= dx;
+        const dt = Math.max(1, now - lastMoveT);
+        velocity = -dx / dt; // px/ms
+        lastX = e.clientX;
+        lastMoveT = now;
+    });
+
+    function endDrag(e) {
+        if (!dragging) return;
+        dragging = false;
+        carousel.classList.remove('is-dragging');
+        try { carousel.releasePointerCapture(e.pointerId); } catch {}
+        const duration = performance.now() - startT;
+        if (!state.wasDragged && duration < TAP_MAX_MS && downTarget && typeof onCardTap === 'function') {
+            onCardTap(downTarget);
+        }
+    }
+    carousel.addEventListener('pointerup', endDrag);
+    carousel.addEventListener('pointercancel', () => {
+        dragging = false;
+        carousel.classList.remove('is-dragging');
+    });
+
+    if (window.matchMedia('(hover: hover)').matches) {
+        carousel.addEventListener('pointerenter', () => { hovering = true; });
+        carousel.addEventListener('pointerleave', () => { hovering = false; });
+    }
+
+    return state;
 }
 
 // ============ КЛИП ============
@@ -345,6 +741,7 @@ function initClip() {
 
 // ============ КАПЛИ КРОВИ ПРИ КЛИКЕ ============
 function initBloodClicks() {
+    if (isMobileView()) return;
     const style = document.createElement('style');
     style.textContent = '@keyframes bloodDrop{0%{transform:translateY(0) scale(1) rotate(0deg);opacity:1}100%{transform:translateY(100px) scale(3) rotate(360deg);opacity:0}}';
     document.head.appendChild(style);
