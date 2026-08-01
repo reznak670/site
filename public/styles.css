@@ -952,7 +952,27 @@ body.has-now-playing { padding-bottom: 68px; }
 
 .clip-info { text-align: center; padding: clamp(12px, 2.5vw, 25px) clamp(15px, 3vw, 30px); border: 1px solid var(--blood); border-radius: var(--radius); }
 .clip-title { font-family: var(--font-display); font-weight: 600; font-size: clamp(16px, 2vw, 32px); color: #ff4444; margin-bottom: clamp(8px, 1.5vw, 15px); text-shadow: 0 0 20px rgba(255,23,68,0.8); letter-spacing: 3px; }
-.clip-actions { display: flex; justify-content: center; gap: clamp(8px, 2vw, 20px); flex-wrap: wrap; }
+.clip-actions { display: flex; justify-content: center; }
+.clip-download-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 6px 16px;
+    font-family: var(--font-display); font-weight: 600;
+    font-size: clamp(10px, 0.9vw, 13px);
+    letter-spacing: 2px;
+    text-decoration: none;
+    color: var(--blood);
+    background: rgba(255,23,68,0.1);
+    border: 1px solid var(--blood);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background .25s, color .25s;
+    touch-action: manipulation;
+}
+.clip-download-btn .icon { width: 1em; height: 1em; }
+.clip-download-btn:active { background: var(--blood); color: #000; }
+@media (hover: hover) { .clip-download-btn:hover { background: var(--blood); color: #000; } }
 
 /* ============ КОНЦЕРТЫ ============ */
 #concerts { position: relative; background: var(--bg-dark); padding-top: clamp(30px, 6vw, 60px); padding-bottom: clamp(30px, 6vw, 60px); }
@@ -1061,8 +1081,6 @@ body.has-now-playing { padding-bottom: 68px; }
     .social-grid { flex-direction: column; align-items: center; }
     .social-card { min-width: clamp(200px, 60vw, 300px); }
     .clip-frame { aspect-ratio: 4/3; }
-    .clip-actions { flex-direction: column; align-items: center; }
-    .clip-actions .btn { width: 100%; max-width: 300px; }
 
     /* На мобильной версии оставляем только эффект VHS (.vhs-layer/.vhs-overlay/
        .vhs-grain/.vhs-glitch-line/.boot-flash/.vhs-tape/.vhs-timestamp) — все
@@ -1076,6 +1094,26 @@ body.has-now-playing { padding-bottom: 68px; }
     .shorts-feed-swipehint .icon {
         animation: none !important;
     }
+
+    /* backdrop-filter (особенно на .site-nav и .now-playing-bar — оба position: fixed,
+       то есть перерасчёт блюра идёт КАЖДЫЙ кадр скролла) — главная причина лагов при
+       листании на телефоне. Фоны у всех этих элементов и так почти непрозрачны
+       (rgba с alpha 0.75-0.94), так что визуально блюр почти не влиял — отключаем его
+       на мобильной версии, оставляя только сплошной фон. */
+    .site-nav, .now-playing-bar, .glass-panel, .member-body, .disclaimers,
+    .shorts-feed-btn, .shorts-feed-navbtn {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    /* Слой VHS на каждой секции (.vhs-layer) — единственная декоративная анимация,
+       которую мы намеренно оставляем на мобильной версии. У неё три конкурирующих
+       infinite-анимации разом (зерно/скан-линия/мерцание) на цикле 0.2-0.6с — вдвое
+       замедляем, чтобы снизить число композит-тиков на слабых GPU, эффект при этом
+       выглядит почти так же. */
+    .vhs-layer { animation-duration: 1s; }
+    .vhs-layer::before { animation-duration: 1.2s; }
+    .vhs-layer::after { animation-duration: 0.4s; }
 }
 
 @media (max-width: 480px) {

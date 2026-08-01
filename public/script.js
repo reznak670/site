@@ -777,10 +777,6 @@ function initClip() {
             frame.appendChild(msg);
         });
     }
-    const fullscreenBtn = document.getElementById('clipFullscreenBtn');
-    if (fullscreenBtn && video) {
-        fullscreenBtn.addEventListener('click', () => video.requestFullscreen?.());
-    }
 }
 
 // ============ КАПЛИ КРОВИ ПРИ КЛИКЕ ============
