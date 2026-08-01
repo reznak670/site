@@ -85,6 +85,7 @@ function initTimestamp() {
 
 // ============ СЛУЧАЙНЫЕ ГЛИТЧИ ГЛОБАЛЬНОГО ОВЕРЛЕЯ ============
 function initGlitch() {
+    if (isMobileView()) return; // мобильная версия статичная — случайные глитч-сдвиги отключены
     const grain = document.querySelector('.vhs-grain');
     if (!grain) return;
     setInterval(() => {
@@ -162,16 +163,18 @@ function initHeroVideo() {
     }, { threshold: 0.1 });
     obs.observe(hero);
 
-    setInterval(() => {
-        if (Math.random() < 0.08) {
-            video.style.filter = `brightness(0.55) contrast(1.6) saturate(0.75) hue-rotate(${Math.random() * 20 - 10}deg)`;
-            video.style.transform = 'translate(-50%, -50%) scale(1.05)';
-            setTimeout(() => {
-                video.style.filter = '';
-                video.style.transform = 'translate(-50%, -50%) scale(1)';
-            }, 100 + Math.random() * 200);
-        }
-    }, 2000);
+    if (!isMobileView()) {
+        setInterval(() => {
+            if (Math.random() < 0.08) {
+                video.style.filter = `brightness(0.55) contrast(1.6) saturate(0.75) hue-rotate(${Math.random() * 20 - 10}deg)`;
+                video.style.transform = 'translate(-50%, -50%) scale(1.05)';
+                setTimeout(() => {
+                    video.style.filter = '';
+                    video.style.transform = 'translate(-50%, -50%) scale(1)';
+                }, 100 + Math.random() * 200);
+            }
+        }, 2000);
+    }
 }
 
 // ============ ФОНОВЫЕ ИЗОБРАЖЕНИЯ СЕКЦИЙ ============
@@ -701,15 +704,20 @@ function initShortsRibbon(carousel, onCardTap) {
     }
 
     function frame(t) {
+        let moving = dragging;
         if (!dragging) {
             if (Math.abs(velocity) > 0.002) {
                 pos += velocity * (16.7);
                 velocity *= 0.94;
-            } else if (!hovering) {
+                moving = true;
+            } else if (!hovering && AUTO_SPEED > 0) {
                 pos += AUTO_SPEED * 16.7;
+                moving = true;
             }
         }
-        apply();
+        // На мобильной версии (AUTO_SPEED = 0) в состоянии покоя ничего не меняется —
+        // не трогаем transform каждый кадр вхолостую, это лишний стиль-рекалк на скролле.
+        if (moving) apply();
         requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);

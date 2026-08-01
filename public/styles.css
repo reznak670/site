@@ -1082,18 +1082,25 @@ body.has-now-playing { padding-bottom: 68px; }
     .social-card { min-width: clamp(200px, 60vw, 300px); }
     .clip-frame { aspect-ratio: 4/3; }
 
-    /* На мобильной версии оставляем только эффект VHS (.vhs-layer/.vhs-overlay/
-       .vhs-grain/.vhs-glitch-line/.boot-flash/.vhs-tape/.vhs-timestamp) — все
-       остальные декоративные анимации (глитч-текст, пульсации, спин, боунс) отключены. */
-    .koza-text, .section-tagline, .outro-sub,
-    .nav-logo .icon, .shorts-hint .icon,
-    .hero-scrim, .scroll-cue,
-    .member-card--center .member-name, .member-empty-icon, .track-row-empty-icon .icon,
-    .track-row-play.is-playing .track-row-play-icon,
-    .track-badge--best, .track-badge--new,
-    .shorts-feed-swipehint .icon {
+    /* Мобильная версия сделана статичной: листать секции на слабом GPU дёргано
+       именно из-за десятков одновременных бесконечных CSS-анимаций (глитчи,
+       пульсации, VHS-слой глобальный + по одному на каждую секцию). Отключаем
+       все декоративные анимации целиком — остаётся только boot-flash (играет
+       один раз при загрузке и сам себя гасит, `forwards`, не крутится вечно). */
+    *, *::before, *::after {
         animation: none !important;
     }
+    .boot-flash { animation: bootFlash 0.7s steps(6) forwards !important; }
+
+    /* will-change без активной анимации всё равно заставляет браузер держать
+       эти слои как отдельные композит-слои (лишняя память/бандвидт GPU) —
+       снимаем его вместе с анимациями. */
+    .vhs-layer, .vhs-layer::before, .vhs-overlay::after, .vhs-grain {
+        will-change: auto !important;
+    }
+    /* Глобальный полноэкранный VHS-оверлей (зерно/сканлайны/глитч-полосы) и
+       per-section .vhs-layer остаются видимыми как статичная текстура (первый
+       кадр анимации), но больше не тикают на каждый кадр скролла. */
 
     /* backdrop-filter (особенно на .site-nav и .now-playing-bar — оба position: fixed,
        то есть перерасчёт блюра идёт КАЖДЫЙ кадр скролла) — главная причина лагов при
@@ -1106,14 +1113,9 @@ body.has-now-playing { padding-bottom: 68px; }
         -webkit-backdrop-filter: none !important;
     }
 
-    /* Слой VHS на каждой секции (.vhs-layer) — единственная декоративная анимация,
-       которую мы намеренно оставляем на мобильной версии. У неё три конкурирующих
-       infinite-анимации разом (зерно/скан-линия/мерцание) на цикле 0.2-0.6с — вдвое
-       замедляем, чтобы снизить число композит-тиков на слабых GPU, эффект при этом
-       выглядит почти так же. */
-    .vhs-layer { animation-duration: 1s; }
-    .vhs-layer::before { animation-duration: 1.2s; }
-    .vhs-layer::after { animation-duration: 0.4s; }
+    /* Фон секции (.section-bg) плавно проявляется через transition при входе в
+       вьюпорт — на статичной мобильной версии он просто сразу на месте. */
+    .section-bg { transition: none !important; }
 }
 
 @media (max-width: 480px) {
