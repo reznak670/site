@@ -98,3 +98,15 @@ export function BagIcon({ size = '1em' }: { size?: string }) {
     </svg>
   )
 }
+
+export function CalendarIcon({ size = '1em' }: { size?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <rect x="12" y="20" width="76" height="70" rx="6" />
+      <line x1="12" y1="38" x2="88" y2="38" />
+      <line x1="30" y1="10" x2="30" y2="26" /><line x1="70" y1="10" x2="70" y2="26" />
+      <line x1="28" y1="55" x2="40" y2="55" /><line x1="46" y1="55" x2="58" y2="55" /><line x1="64" y1="55" x2="76" y2="55" />
+      <line x1="28" y1="72" x2="40" y2="72" /><line x1="46" y1="72" x2="58" y2="72" />
+    </svg>
+  )
+}

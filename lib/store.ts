@@ -6,6 +6,7 @@ const DATA_DIR = path.join(process.cwd(), 'data')
 const TRACKS_FILE = path.join(DATA_DIR, 'tracks.json')
 const MERCH_FILE = path.join(DATA_DIR, 'merch.json')
 const ORDERS_FILE = path.join(DATA_DIR, 'orders.json')
+const CONCERTS_FILE = path.join(DATA_DIR, 'concerts.json')
 
 export type Track = {
   id: string
@@ -36,6 +37,18 @@ export type Order = {
   postalCode: string
   email: string
   seen: boolean
+  createdAt: number
+}
+
+export type Concert = {
+  id: string
+  date: string
+  time: string
+  city: string
+  venue: string
+  ticketUrl: string
+  desc: string
+  poster: string
   createdAt: number
 }
 
@@ -107,4 +120,21 @@ export async function markOrderSeen(id: string): Promise<void> {
 export async function deleteOrder(id: string): Promise<void> {
   const orders = await getOrders()
   await writeJson(ORDERS_FILE, orders.filter((o) => o.id !== id))
+}
+
+export async function getConcerts(): Promise<Concert[]> {
+  return readJson<Concert[]>(CONCERTS_FILE, [])
+}
+
+export async function addConcert(input: Omit<Concert, 'id' | 'createdAt'>): Promise<Concert> {
+  const concerts = await getConcerts()
+  const concert: Concert = { ...input, id: crypto.randomUUID(), createdAt: Date.now() }
+  concerts.push(concert)
+  await writeJson(CONCERTS_FILE, concerts)
+  return concert
+}
+
+export async function deleteConcert(id: string): Promise<void> {
+  const concerts = await getConcerts()
+  await writeJson(CONCERTS_FILE, concerts.filter((c) => c.id !== id))
 }

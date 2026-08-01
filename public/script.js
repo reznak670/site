@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initParallax();
     initAudioPlayer();
     initDynamicTracks();
+    initDynamicConcerts();
     initShorts();
     initClip();
     initBloodClicks();
@@ -453,6 +454,49 @@ async function initDynamicTracks() {
             else list.appendChild(row);
             bindTrackRow(row);
         });
+    } catch {}
+}
+
+// ============ КОНЦЕРТЫ ============
+const CONCERT_MONTHS = ['ЯНВ', 'ФЕВ', 'МАР', 'АПР', 'МАЙ', 'ИЮН', 'ИЮЛ', 'АВГ', 'СЕН', 'ОКТ', 'НОЯ', 'ДЕК'];
+
+function buildConcertCard(concert) {
+    const card = document.createElement('div');
+    card.className = 'concert-poster' + (concert.poster ? '' : ' concert-poster--noimg');
+    if (concert.poster) card.style.backgroundImage = `url('${concert.poster}')`;
+
+    const [year, month, day] = String(concert.date || '').split('-');
+    const monthLabel = CONCERT_MONTHS[Number(month) - 1] || '';
+
+    card.innerHTML = `
+        ${!concert.poster ? '<div class="concert-poster-placeholder"><svg class="icon"><use href="#icon-calendar"/></svg></div>' : ''}
+        <div class="concert-poster-scrim"></div>
+        <div class="concert-poster-date">
+            <span class="concert-poster-day">${escapeHtml(day || '?')}</span>
+            <span class="concert-poster-month">${escapeHtml(monthLabel)}</span>
+        </div>
+        <div class="concert-poster-body">
+            <h3 class="concert-poster-venue">${escapeHtml(concert.venue)}</h3>
+            <span class="concert-poster-city">${escapeHtml(concert.city)}</span>
+            ${concert.time ? `<span class="concert-poster-time">${escapeHtml(concert.time)} МСК</span>` : ''}
+            ${concert.desc ? `<p class="concert-poster-desc">${escapeHtml(concert.desc)}</p>` : ''}
+            ${concert.ticketUrl ? `<a class="btn concert-poster-tickets" href="${escapeHtml(concert.ticketUrl)}" target="_blank" rel="noopener">БИЛЕТЫ</a>` : ''}
+        </div>`;
+    return card;
+}
+
+async function initDynamicConcerts() {
+    const list = document.getElementById('concertsList');
+    const empty = document.getElementById('concertsEmpty');
+    if (!list) return;
+    try {
+        const res = await fetch('/api/concerts');
+        if (!res.ok) return;
+        const { concerts } = await res.json();
+        if (!concerts || !concerts.length) return;
+
+        if (empty) empty.remove();
+        concerts.forEach((concert) => list.appendChild(buildConcertCard(concert)));
     } catch {}
 }
 

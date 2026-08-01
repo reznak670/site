@@ -46,3 +46,7 @@ export function saveAudioFile(file: File): Promise<string> {
 export function saveImageFile(file: File): Promise<string> {
   return saveFile(file, IMAGE_TYPES, MAX_IMAGE_BYTES, 'img/merch')
 }
+
+export function saveConcertPoster(file: File): Promise<string> {
+  return saveFile(file, IMAGE_TYPES, MAX_IMAGE_BYTES, 'img/concerts')
+}

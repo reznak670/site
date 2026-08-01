@@ -113,8 +113,8 @@ h1, h2, h3 {
 /* ============ УТИЛИТЫ (переиспользуемые компоненты) ============ */
 .glass-panel {
     background: var(--bg-card);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     border-radius: var(--radius);
 }
 
@@ -134,7 +134,7 @@ h1, h2, h3 {
     font-family: var(--font-burned);
     color: var(--blood);
     text-shadow: 0 0 20px var(--blood);
-    animation: glitchText 0.45s infinite;
+    animation: glitchText 0.45s steps(5, jump-none) infinite;
     will-change: transform;
     display: inline-block;
     padding: clamp(8px, 1.5vw, 15px) clamp(15px, 3vw, 30px);
@@ -360,8 +360,8 @@ h1, h2, h3 {
     padding-top: env(safe-area-inset-top, 0px);
     z-index: 15000;
     background: rgba(5,0,0,0.82);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     border-bottom: 1px solid rgba(255,23,68,0.35);
 }
 
@@ -506,14 +506,19 @@ h1, h2, h3 {
     font-size: var(--h1-size);
     font-weight: 900;
     color: var(--blood);
-    text-shadow: 0 0 15px #fff, 0 0 60px var(--blood), 0 0 130px var(--blood), 5px 5px 0 #000, -4px -4px 0 rgba(0,255,255,0.35);
-    animation: glitchText 0.6s infinite;
+    text-shadow: 0 0 12px #fff, 0 0 25px var(--blood), 0 0 45px var(--blood), 5px 5px 0 #000, -4px -4px 0 rgba(0,255,255,0.35);
+    animation: glitchText 0.6s steps(5, jump-none) infinite;
     will-change: transform;
     letter-spacing: clamp(5px, 2vw, 20px);
     word-break: break-all;
 }
 .koza-k { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-@keyframes glitchText { 0%,100%{transform:translateX(0);text-shadow:0 0 15px #fff,0 0 60px var(--blood),0 0 130px var(--blood),4px 4px 0 #000} 20%{transform:translateX(-6px) skewX(2deg);text-shadow:-4px 0 red,4px 0 cyan,0 0 60px var(--blood)} 40%{transform:translateX(6px) skewX(-2deg);text-shadow:4px 0 cyan,-4px 0 red,0 0 130px var(--blood)} 60%{transform:translateX(-4px);text-shadow:-3px 0 red,3px 0 cyan,0 0 60px var(--blood)} 80%{transform:translateX(4px);text-shadow:3px 0 cyan,-3px 0 red,0 0 130px var(--blood)} }
+/* steps(5, jump-none) — анимация прыгает между 5 состояниями кейфреймов вместо
+   плавной интерполяции text-shadow между ними. text-shadow не композитится GPU
+   (в отличие от transform/opacity), поэтому браузер перерисовывает текст при каждом
+   промежуточном значении тени; со steps() перерисовка происходит только в моменты
+   скачков (5 раз за цикл), а не 60 раз в секунду — и выглядит даже более "глючно". */
+@keyframes glitchText { 0%,100%{transform:translateX(0);text-shadow:0 0 12px #fff,0 0 25px var(--blood),0 0 45px var(--blood),4px 4px 0 #000} 20%{transform:translateX(-6px) skewX(2deg);text-shadow:-4px 0 red,4px 0 cyan,0 0 25px var(--blood)} 40%{transform:translateX(6px) skewX(-2deg);text-shadow:4px 0 cyan,-4px 0 red,0 0 45px var(--blood)} 60%{transform:translateX(-4px);text-shadow:-3px 0 red,3px 0 cyan,0 0 25px var(--blood)} 80%{transform:translateX(4px);text-shadow:3px 0 cyan,-3px 0 red,0 0 45px var(--blood)} }
 
 .hero-subtitle {
     font-family: var(--font-wetpaint);
@@ -550,7 +555,7 @@ h1, h2, h3 {
 @keyframes bounce { 0%,100%{transform:translate(-50%,0)} 50%{transform:translate(-50%,16px)} }
 
 /* ============ ЗАГОЛОВКИ / ТЕКСТОВЫЕ БЛОКИ ============ */
-#about, #concerts { background: var(--bg-dark); }
+#about { background: var(--bg-dark); }
 
 .about-text {
     font-size: var(--text-lg);
@@ -568,8 +573,8 @@ h1, h2, h3 {
     margin-top: clamp(20px, 4vw, 40px);
     font-size: var(--text-sm);
     background: rgba(0,0,0,0.9);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     border: 1px solid #333;
     padding: clamp(10px, 2vw, 20px);
     text-align: left;
@@ -654,8 +659,10 @@ h1, h2, h3 {
 
 .member-card--center { background-color: #1a0000; }
 .member-card--center .member-scrim { background: rgba(10,0,0,0.7); }
-.member-card--center .member-name { font-size: clamp(18px, 2.5vw, 36px); animation: centerPulse 1s infinite; }
-@keyframes centerPulse { 0%,100%{text-shadow:0 0 20px rgba(255,23,68,0.9),0 0 40px rgba(255,23,68,0.5);transform:scale(1)} 50%{text-shadow:0 0 40px rgba(255,23,68,1),0 0 80px rgba(255,23,68,0.8);transform:scale(1.05)} }
+.member-card--center .member-name { font-size: clamp(18px, 2.5vw, 36px); text-shadow: 0 0 16px rgba(255,23,68,0.95), 0 0 30px rgba(255,23,68,0.65); animation: centerPulse 1s infinite; }
+/* Тень статичная (задана один раз в правиле выше), в кейфрейме анимируется только
+   transform — это композитится GPU и не требует перерисовки текста на каждый кадр. */
+@keyframes centerPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
 
 .member-card--empty {
     background: var(--bg-deep);
@@ -746,8 +753,9 @@ h1, h2, h3 {
 .track-row-play.is-playing .track-row-num { display: none; }
 .track-row-play:hover .track-row-play-icon,
 .track-row-play.is-playing .track-row-play-icon { display: block; }
-.track-row-play.is-playing .track-row-play-icon { animation: btnPulse 0.8s infinite; border-radius: 50%; }
-@keyframes btnPulse { 0%,100%{ filter: drop-shadow(0 0 4px var(--blood)); } 50%{ filter: drop-shadow(0 0 14px var(--blood)); } }
+.track-row-play.is-playing .track-row-play-icon { filter: drop-shadow(0 0 8px var(--blood)); animation: btnPulse 0.8s infinite; border-radius: 50%; }
+/* filter статичный — анимируется только opacity (композитор, без перерисовки). */
+@keyframes btnPulse { 0%,100%{ opacity: 1; } 50%{ opacity: 0.55; } }
 
 .track-row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .track-row-title-line { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -765,14 +773,14 @@ h1, h2, h3 {
 }
 
 .track-badge { display: inline-block; padding: 2px 10px; font-size: 9px; letter-spacing: 2px; background: rgba(0,0,0,0.8); border-radius: 3px; font-family: var(--font-body); flex-shrink: 0; }
-.track-badge--best { color: var(--gold); border: 1px solid var(--gold); text-shadow: 0 0 10px var(--gold); animation: badgeGlow 2s infinite; }
+.track-badge--best { color: var(--gold); border: 1px solid var(--gold); text-shadow: 0 0 10px var(--gold); box-shadow: 0 0 12px var(--gold); }
 .track-badge--brutal { color: #ff4444; border: 1px solid #ff4444; }
 .track-badge--dark { color: #8888ff; border: 1px solid #8888ff; }
 .track-badge--meh { color: #888; border: 1px solid #888; }
-.track-badge--new { color: #00ff44; border: 1px solid #00ff44; text-shadow: 0 0 15px #00ff44; animation: badgePulse 1s infinite; }
+.track-badge--new { color: #00ff44; border: 1px solid #00ff44; text-shadow: 0 0 15px #00ff44; box-shadow: 0 0 15px #00ff44; animation: badgePulse 1s infinite; }
 .track-badge--first { color: #ff8800; border: 1px solid #ff8800; }
-@keyframes badgeGlow { 0%,100%{box-shadow:0 0 5px var(--gold)} 50%{box-shadow:0 0 20px var(--gold)} }
-@keyframes badgePulse { 0%,100%{box-shadow:0 0 5px #00ff44;transform:scale(1)} 50%{box-shadow:0 0 25px #00ff44;transform:scale(1.05)} }
+/* box-shadow задан статично выше — анимируется только transform (композитор, без перерисовки). */
+@keyframes badgePulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
 
 .track-row-progress { display: flex; align-items: center; gap: 8px; width: clamp(70px, 20vw, 200px); flex-shrink: 0; }
 .track-progress { flex: 1; height: 4px; background: rgba(255,23,68,0.2); position: relative; cursor: pointer; min-width: 30px; border-radius: 2px; touch-action: manipulation; }
@@ -813,8 +821,8 @@ h1, h2, h3 {
     padding: 10px clamp(14px, 3vw, 30px);
     padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
     background: rgba(5,0,0,0.94);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     border-top: 1px solid rgba(255,23,68,0.4);
     box-shadow: 0 -5px 30px rgba(0,0,0,0.5);
     transform: translateY(110%);
@@ -917,11 +925,11 @@ body.has-now-playing { padding-bottom: 68px; }
 .shorts-feed-slide.is-paused .shorts-feed-playicon { opacity: 0.9; transform: translate(-50%,-50%) scale(1); }
 
 .shorts-feed-bar { position: absolute; top: calc(env(safe-area-inset-top, 0px) + clamp(12px, 2.5vw, 20px)); left: 0; right: 0; z-index: 4; display: flex; justify-content: space-between; padding: 0 clamp(12px, 2.5vw, 20px); pointer-events: none; }
-.shorts-feed-btn { pointer-events: auto; width: clamp(38px, 5vw, 46px); height: clamp(38px, 5vw, 46px); padding: 0; border-radius: 50%; background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.shorts-feed-btn { pointer-events: auto; width: clamp(38px, 5vw, 46px); height: clamp(38px, 5vw, 46px); padding: 0; border-radius: 50%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
 .shorts-feed-btn .icon { width: 18px; height: 18px; }
 
 .shorts-feed-nav { position: absolute; right: clamp(10px, 2vw, 24px); top: 50%; transform: translateY(-50%); z-index: 4; display: flex; flex-direction: column; gap: clamp(10px, 1.5vw, 16px); }
-.shorts-feed-navbtn { width: clamp(36px, 4.5vw, 44px); height: clamp(36px, 4.5vw, 44px); border-radius: 50%; border: 1px solid rgba(255,23,68,0.5); background: rgba(0,0,0,0.4); color: var(--blood-glow); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s, transform 0.15s; backdrop-filter: blur(6px); }
+.shorts-feed-navbtn { width: clamp(36px, 4.5vw, 44px); height: clamp(36px, 4.5vw, 44px); border-radius: 50%; border: 1px solid rgba(255,23,68,0.5); background: rgba(0,0,0,0.4); color: var(--blood-glow); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s, transform 0.15s; backdrop-filter: blur(4px); }
 .shorts-feed-navbtn:active { transform: scale(0.9); }
 @media (hover: hover) { .shorts-feed-navbtn:hover { background: rgba(255,23,68,0.3); } }
 .shorts-feed-navbtn .icon { width: 16px; height: 16px; }
@@ -946,6 +954,81 @@ body.has-now-playing { padding-bottom: 68px; }
 .clip-title { font-family: var(--font-display); font-weight: 600; font-size: clamp(16px, 2vw, 32px); color: #ff4444; margin-bottom: clamp(8px, 1.5vw, 15px); text-shadow: 0 0 20px rgba(255,23,68,0.8); letter-spacing: 3px; }
 .clip-actions { display: flex; justify-content: center; gap: clamp(8px, 2vw, 20px); flex-wrap: wrap; }
 
+/* ============ КОНЦЕРТЫ ============ */
+#concerts { position: relative; background: var(--bg-dark); padding-top: clamp(30px, 6vw, 60px); padding-bottom: clamp(30px, 6vw, 60px); }
+.concerts-intro { max-width: 640px; margin: 0 auto clamp(20px, 4vw, 40px); padding: clamp(12px, 2vw, 18px) clamp(16px, 3vw, 24px); text-align: center; }
+
+.concerts-grid {
+    max-width: min(1100px, 95vw);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: clamp(15px, 2.5vw, 25px);
+    text-align: left;
+}
+
+.concert-poster {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    aspect-ratio: 3/4;
+    border-radius: var(--radius);
+    border: 1px solid rgba(255,23,68,0.3);
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    background-color: rgba(10,0,0,0.9);
+    transition: transform .3s, box-shadow .3s, border-color .3s;
+}
+@media (hover: hover) {
+    .concert-poster:hover { transform: translateY(-6px); box-shadow: 0 15px 30px rgba(255,23,68,0.25); border-color: var(--blood-light); }
+}
+.concert-poster--noimg { background: radial-gradient(circle at 50% 30%, rgba(255,23,68,0.22), rgba(10,0,0,0.96)); }
+.concert-poster--noimg .concert-poster-placeholder { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); }
+.concert-poster-placeholder .icon { width: 56px; height: 56px; color: var(--blood); opacity: 0.35; }
+
+.concert-poster-scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.92) 8%, rgba(0,0,0,0.55) 45%, transparent 85%);
+}
+
+.concert-poster-date {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+    text-align: center;
+    padding: 6px 10px;
+    border: 1px solid var(--blood);
+    border-radius: var(--radius-sm);
+    background: rgba(10,0,0,0.75);
+}
+.concert-poster-day { display: block; font-family: var(--font-display); font-weight: 600; font-size: 22px; color: #ff4444; line-height: 1; text-shadow: 0 0 10px rgba(255,23,68,0.6); }
+.concert-poster-month { display: block; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-gray); margin-top: 2px; }
+
+.concert-poster-body { position: relative; z-index: 2; padding: clamp(12px, 2vw, 18px); display: flex; flex-direction: column; gap: 4px; }
+.concert-poster-venue { font-family: var(--font-display); font-weight: 600; font-size: clamp(15px, 1.6vw, 19px); color: #ff5555; letter-spacing: 1px; text-shadow: 0 0 15px rgba(255,23,68,0.5); }
+.concert-poster-city { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-gray); font-family: var(--font-body); }
+.concert-poster-time { font-size: 11px; color: var(--text-gray); font-family: var(--font-body); }
+.concert-poster-desc { font-size: 12px; color: var(--text-gray); font-family: var(--font-body); line-height: 1.4; }
+.concert-poster-tickets { align-self: flex-start; margin-top: 8px; padding: 8px 14px; font-size: 11px; }
+
+.concerts-empty {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: clamp(30px, 5vw, 50px);
+    text-align: center;
+    opacity: 0.45;
+    color: var(--text-white);
+}
+.concerts-empty .icon { width: 24px; height: 24px; color: var(--blood); animation: pulse 2s infinite; }
+.concerts-empty span { font-size: 12px; letter-spacing: 2px; font-family: var(--font-body); }
+
 /* ============ КОНТАКТЫ ============ */
 #contacts { position: relative; background: var(--bg-dark); }
 .social-grid { display: flex; justify-content: center; gap: clamp(15px, 3vw, 30px); flex-wrap: wrap; margin-bottom: clamp(25px, 5vw, 50px); }
@@ -961,7 +1044,7 @@ body.has-now-playing { padding-bottom: 68px; }
 
 .outro { text-align: center; }
 .outro-tagline { font-family: var(--font-wetpaint); font-size: clamp(16px, 2vw, 32px); color: var(--blood); font-weight: bold; text-shadow: 0 0 20px var(--blood); display: inline-block; padding: clamp(8px, 1.5vw, 15px) clamp(15px, 3vw, 25px); }
-.outro-sub { font-family: var(--font-eater); font-size: clamp(30px, 5vw, 80px); color: var(--blood); margin-top: clamp(10px, 2vw, 20px); text-shadow: 0 0 30px var(--blood); animation: glitchText 0.45s infinite; will-change: transform; }
+.outro-sub { font-family: var(--font-eater); font-size: clamp(30px, 5vw, 80px); color: var(--blood); margin-top: clamp(10px, 2vw, 20px); text-shadow: 0 0 30px var(--blood); animation: glitchText 0.45s steps(5, jump-none) infinite; will-change: transform; }
 
 /* ============ АДАПТИВ ============ */
 @media (max-width: 1024px) {

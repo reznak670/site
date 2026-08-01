@@ -26,7 +26,7 @@ export default function ErrorPage({
         <SkullIcon /> 500
       </h1>
       <p style={{ fontSize: '1.3em', color: '#ff5252' }}>
-        Всё пошло по пизде
+        Всё пошло наперекосяк
       </p>
       <p style={{ color: '#888', fontSize: '0.9em' }}>
         Как барабанщик на 10-й минуте слэма

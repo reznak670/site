@@ -1,8 +1,11 @@
 'use client'
 
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
-import { SkullIcon, LockIcon, TrashIcon, MusicNoteIcon, BagIcon, BellIcon } from '../icons'
-import type { Track, MerchItem, Order } from '@/lib/store'
+import { SkullIcon, LockIcon, TrashIcon, MusicNoteIcon, BagIcon, BellIcon, CalendarIcon } from '../icons'
+import type { Track, MerchItem, Order, Concert } from '@/lib/store'
+import CityAutocomplete from './CityAutocomplete'
+import TimePicker from './TimePicker'
+import DatePicker from './DatePicker'
 
 const BADGE_OPTIONS = [
   { value: 'best', label: 'ЛУЧШИЙ' },
@@ -35,6 +38,7 @@ export default function AdminPage() {
   const [tracks, setTracks] = useState<Track[]>([])
   const [merch, setMerch] = useState<MerchItem[]>([])
   const [orders, setOrders] = useState<Order[]>([])
+  const [concerts, setConcerts] = useState<Concert[]>([])
 
   const [trackForm, setTrackForm] = useState({ name: '', desc: '', badgeVariant: 'new' })
   const [trackFile, setTrackFile] = useState<File | null>(null)
@@ -46,16 +50,22 @@ export default function AdminPage() {
   const [merchMsg, setMerchMsg] = useState<Msg>(null)
   const [merchSubmitting, setMerchSubmitting] = useState(false)
 
+  const [concertForm, setConcertForm] = useState({ date: '', time: '', city: '', venue: '', ticketUrl: '', desc: '' })
+  const [concertFile, setConcertFile] = useState<File | null>(null)
+  const [concertMsg, setConcertMsg] = useState<Msg>(null)
+  const [concertSubmitting, setConcertSubmitting] = useState(false)
+
   const loadOrders = useCallback(async () => {
     const res = await fetch('/api/orders')
     if (res.ok) setOrders((await res.json()).orders || [])
   }, [])
 
   const loadData = useCallback(async () => {
-    const [tRes, mRes, oRes] = await Promise.all([fetch('/api/tracks'), fetch('/api/merch'), fetch('/api/orders')])
+    const [tRes, mRes, oRes, cRes] = await Promise.all([fetch('/api/tracks'), fetch('/api/merch'), fetch('/api/orders'), fetch('/api/concerts')])
     if (tRes.ok) setTracks((await tRes.json()).tracks || [])
     if (mRes.ok) setMerch((await mRes.json()).merch || [])
     if (oRes.ok) setOrders((await oRes.json()).orders || [])
+    if (cRes.ok) setConcerts((await cRes.json()).concerts || [])
   }, [])
 
   useEffect(() => {
@@ -192,6 +202,47 @@ export default function AdminPage() {
       body: JSON.stringify({ id }),
     }).catch(() => {})
     setMerch((prev) => prev.filter((i) => i.id !== id))
+  }
+
+  async function handleAddConcert(e: FormEvent) {
+    e.preventDefault()
+    setConcertMsg(null)
+    if (!concertForm.date.trim() || !concertForm.city.trim() || !concertForm.venue.trim()) {
+      setConcertMsg({ type: 'error', text: 'Укажите дату, город и площадку' })
+      return
+    }
+    setConcertSubmitting(true)
+    try {
+      const fd = new FormData()
+      Object.entries(concertForm).forEach(([key, val]) => fd.set(key, val))
+      if (concertFile) fd.set('file', concertFile)
+      const res = await fetch('/api/concerts', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (!res.ok) {
+        setConcertMsg({ type: 'error', text: data.error || 'Ошибка добавления' })
+        return
+      }
+      setConcerts((prev) => [...prev, data.concert])
+      setConcertForm({ date: '', time: '', city: '', venue: '', ticketUrl: '', desc: '' })
+      setConcertFile(null)
+      const fileInput = document.getElementById('concert-file-input') as HTMLInputElement | null
+      if (fileInput) fileInput.value = ''
+      setConcertMsg({ type: 'success', text: 'Концерт добавлен' })
+    } catch {
+      setConcertMsg({ type: 'error', text: 'Ошибка сети' })
+    } finally {
+      setConcertSubmitting(false)
+    }
+  }
+
+  async function handleDeleteConcert(id: string) {
+    if (!confirm('Удалить концерт?')) return
+    await fetch('/api/concerts', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    }).catch(() => {})
+    setConcerts((prev) => prev.filter((c) => c.id !== id))
   }
 
   async function handleMarkOrderSeen(id: string) {
@@ -390,6 +441,66 @@ export default function AdminPage() {
                     <div className="admin-item-sub">{item.price}</div>
                   </div>
                   <button className="admin-item-delete" onClick={() => handleDeleteMerch(item.id)} aria-label="Удалить">
+                    <TrashIcon size="14px" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="admin-section">
+            <h2 className="admin-section-title"><CalendarIcon size="0.9em" /> КОНЦЕРТЫ</h2>
+            <p className="admin-section-hint">Добавленные концерты сразу появляются в разделе «Концерты» на главной.</p>
+
+            <form className="admin-form" onSubmit={handleAddConcert}>
+              {concertMsg && <div className={`admin-msg admin-msg--${concertMsg.type}`}>{concertMsg.text}</div>}
+              <div className="admin-form-row">
+                <div className="admin-field">
+                  <label className="admin-label">Дата</label>
+                  <DatePicker value={concertForm.date} onChange={(date) => setConcertForm((f) => ({ ...f, date }))} />
+                </div>
+                <div className="admin-field">
+                  <label className="admin-label">Время начала (МСК)</label>
+                  <TimePicker value={concertForm.time} onChange={(time) => setConcertForm((f) => ({ ...f, time }))} />
+                </div>
+              </div>
+              <div className="admin-form-row">
+                <div className="admin-field">
+                  <label className="admin-label">Город</label>
+                  <CityAutocomplete value={concertForm.city} onChange={(city) => setConcertForm((f) => ({ ...f, city }))} />
+                </div>
+                <div className="admin-field">
+                  <label className="admin-label">Площадка</label>
+                  <input className="admin-input" value={concertForm.venue} onChange={(e) => setConcertForm((f) => ({ ...f, venue: e.target.value }))} maxLength={150} required />
+                </div>
+              </div>
+              <div className="admin-field">
+                <label className="admin-label">Ссылка на билеты (необязательно)</label>
+                <input className="admin-input" value={concertForm.ticketUrl} onChange={(e) => setConcertForm((f) => ({ ...f, ticketUrl: e.target.value }))} placeholder="https://..." maxLength={300} />
+              </div>
+              <div className="admin-field">
+                <label className="admin-label">Описание</label>
+                <textarea className="admin-textarea" value={concertForm.desc} onChange={(e) => setConcertForm((f) => ({ ...f, desc: e.target.value }))} maxLength={400} />
+              </div>
+              <div className="admin-field">
+                <label className="admin-label">Афиша (jpg/png/webp, до 8 МБ, необязательно)</label>
+                <input id="concert-file-input" type="file" accept="image/jpeg,image/png,image/webp" className="admin-file" onChange={(e) => setConcertFile(e.target.files?.[0] || null)} />
+              </div>
+              <button type="submit" className="btn" disabled={concertSubmitting}>{concertSubmitting ? 'ДОБАВЛЯЮ...' : 'ДОБАВИТЬ КОНЦЕРТ'}</button>
+            </form>
+
+            <div className="admin-list">
+              {concerts.length === 0 && <div className="admin-empty">Пока нет добавленных концертов</div>}
+              {concerts.slice().sort((a, b) => a.date.localeCompare(b.date)).map((c) => (
+                <div className="admin-item" key={c.id}>
+                  <div className="admin-item-thumb" style={c.poster ? { backgroundImage: `url('${c.poster}')` } : undefined}>
+                    {!c.poster && <CalendarIcon size="18px" />}
+                  </div>
+                  <div className="admin-item-body">
+                    <div className="admin-item-name">{c.venue}, {c.city}</div>
+                    <div className="admin-item-sub">{c.date}{c.time ? ` в ${c.time}` : ''}</div>
+                  </div>
+                  <button className="admin-item-delete" onClick={() => handleDeleteConcert(c.id)} aria-label="Удалить">
                     <TrashIcon size="14px" />
                   </button>
                 </div>

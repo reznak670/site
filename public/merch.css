@@ -18,8 +18,8 @@
     top: 0;
     z-index: 50;
     background: rgba(5,0,0,0.85);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     border-bottom: 1px solid rgba(255,23,68,0.35);
     padding: 15px clamp(15px, 3vw, 30px);
 }
@@ -123,8 +123,8 @@
     position: absolute;
     inset: 0;
     background: rgba(0,0,0,0.92);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
 }
 .order-modal-panel {
     position: relative;
