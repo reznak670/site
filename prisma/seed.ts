@@ -3,11 +3,9 @@ import { readFileSync } from 'fs'
 import path from 'path'
 import { PrismaClient } from '../lib/generated/prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
+import { runtimeDatabaseUrl } from '../lib/databaseUrl'
 
-const connectionString = process.env.DATABASE_URL
-if (!connectionString) throw new Error('DATABASE_URL is not set')
-
-const adapter = new PrismaPg({ connectionString })
+const adapter = new PrismaPg({ connectionString: runtimeDatabaseUrl() })
 const prisma = new PrismaClient({ adapter })
 
 type LegacyTrack = {
