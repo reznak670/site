@@ -20,8 +20,6 @@ export async function POST(req: NextRequest) {
 
   const name = String(form.get('name') || '').trim().slice(0, 100)
   const desc = String(form.get('desc') || '').trim().slice(0, 400)
-  const badge = String(form.get('badge') || 'НОВЫЙ').trim().slice(0, 30)
-  const badgeVariant = String(form.get('badgeVariant') || 'new').trim().slice(0, 20)
   const file = form.get('file')
 
   if (!name || !(file instanceof File) || file.size === 0) {
@@ -30,7 +28,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const src = await saveAudioFile(file)
-    const track = await addTrack({ name, desc, badge, badgeVariant, src })
+    const track = await addTrack({ name, desc, src })
     return NextResponse.json({ track })
   } catch (e) {
     const message = e instanceof UploadError ? e.message : 'Ошибка загрузки файла'

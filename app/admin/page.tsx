@@ -7,23 +7,27 @@ import CityAutocomplete from './CityAutocomplete'
 import TimePicker from './TimePicker'
 import DatePicker from './DatePicker'
 
-const BADGE_OPTIONS = [
-  { value: 'best', label: 'ЛУЧШИЙ' },
-  { value: 'brutal', label: 'БРУТАЛЬНЫЙ' },
-  { value: 'dark', label: 'МРАЧНЫЙ' },
-  { value: 'meh', label: 'СЛАБЕЕ' },
-  { value: 'new', label: 'НОВЫЙ РЕЛИЗ' },
-  { value: 'first', label: 'ПЕРВЫЙ РЕЛИЗ' },
-]
-
 type Msg = { type: 'error' | 'success'; text: string } | null
 
-function StyleLinks() {
+function Message({ msg }: { msg: Msg }) {
+  if (!msg) return null
   return (
-    <>
-      <link rel="stylesheet" href="/styles.css" />
-      <link rel="stylesheet" href="/admin.css" />
-    </>
+    <div
+      className={`cut-sm border px-4 py-2 text-sm ${
+        msg.type === 'error' ? 'border-red/50 bg-red/10 text-red' : 'border-paper/30 bg-white/5 text-paper'
+      }`}
+    >
+      {msg.text}
+    </div>
+  )
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="font-mono text-[11px] uppercase tracking-widest2 text-mute">{label}</label>
+      {children}
+    </div>
   )
 }
 
@@ -40,7 +44,7 @@ export default function AdminPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [concerts, setConcerts] = useState<Concert[]>([])
 
-  const [trackForm, setTrackForm] = useState({ name: '', desc: '', badgeVariant: 'new' })
+  const [trackForm, setTrackForm] = useState({ name: '', desc: '' })
   const [trackFile, setTrackFile] = useState<File | null>(null)
   const [trackMsg, setTrackMsg] = useState<Msg>(null)
   const [trackSubmitting, setTrackSubmitting] = useState(false)
@@ -129,8 +133,6 @@ export default function AdminPage() {
       const fd = new FormData()
       fd.set('name', trackForm.name)
       fd.set('desc', trackForm.desc)
-      fd.set('badgeVariant', trackForm.badgeVariant)
-      fd.set('badge', BADGE_OPTIONS.find((b) => b.value === trackForm.badgeVariant)?.label || 'НОВЫЙ')
       fd.set('file', trackFile)
       const res = await fetch('/api/tracks', { method: 'POST', body: fd })
       const data = await res.json()
@@ -139,7 +141,7 @@ export default function AdminPage() {
         return
       }
       setTracks((prev) => [...prev, data.track])
-      setTrackForm({ name: '', desc: '', badgeVariant: 'new' })
+      setTrackForm({ name: '', desc: '' })
       setTrackFile(null)
       const fileInput = document.getElementById('track-file-input') as HTMLInputElement | null
       if (fileInput) fileInput.value = ''
@@ -268,87 +270,98 @@ export default function AdminPage() {
 
   if (checking) {
     return (
-      <div className="admin-shell">
-        <StyleLinks />
-        <div className="admin-loading">ЗАГРУЗКА...</div>
+      <div className="flex min-h-screen items-center justify-center bg-ink">
+        <p className="font-mono text-xs uppercase tracking-widest2 text-mute">ЗАГРУЗКА...</p>
       </div>
     )
   }
 
   if (!authed) {
     return (
-      <div className="admin-shell">
-        <StyleLinks />
-        <div className="admin-login-wrap">
-          <form className="admin-login-panel glass-panel admin-login-form" onSubmit={handleLogin}>
-            <LockIcon size="50px" />
-            <h1 className="admin-login-title">ВХОД В АДМИНКУ</h1>
-            {loginError && <div className="admin-msg admin-msg--error">{loginError}</div>}
-            <div className="admin-field">
-              <label className="admin-label" htmlFor="admin-password">Пароль</label>
+      <div className="flex min-h-screen items-center justify-center bg-ink px-5">
+        <form className="glass flex w-full max-w-sm flex-col items-center gap-4 p-8" onSubmit={handleLogin}>
+          <span className="text-red"><LockIcon size="44px" /></span>
+          <h1 className="font-display text-xl font-bold uppercase tracking-wide">Вход в админку</h1>
+          {loginError && <Message msg={{ type: 'error', text: loginError }} />}
+          <div className="w-full">
+            <Field label="Пароль">
               <input
                 id="admin-password"
                 type="password"
-                className="admin-input"
+                className="field-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoFocus
                 required
               />
-            </div>
-            <button type="submit" className="btn" disabled={loggingIn}>
-              {loggingIn ? 'ВХОЖУ...' : 'ВОЙТИ'}
-            </button>
-          </form>
-        </div>
+            </Field>
+          </div>
+          <button type="submit" className="btn w-full" disabled={loggingIn}>
+            {loggingIn ? 'ВХОЖУ...' : 'ВОЙТИ'}
+          </button>
+        </form>
       </div>
     )
   }
 
   return (
-    <div className="admin-shell">
-      <StyleLinks />
-      <header className="admin-topbar">
-        <div className="admin-brand">
-          <SkullIcon size="24px" />
-          BLOODY SCISSORS — АДМИНКА
-          <span className="admin-bell-wrap">
-            <BellIcon size="20px" />
-            {unseenOrders > 0 && <span className="admin-bell-badge">{unseenOrders}</span>}
-          </span>
-        </div>
-        <div className="admin-actions">
-          <a href="/" className="btn">НА САЙТ</a>
-          <a href="/merch" className="btn">МАГАЗИН</a>
-          <button className="btn" onClick={handleLogout}>ВЫЙТИ</button>
+    <div className="min-h-screen bg-ink pb-20 pt-16">
+      <header className="fixed inset-x-0 top-0 z-30 border-b border-red/15 bg-ink/90 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-6xl flex-wrap items-center justify-between gap-3 px-5">
+          <div className="flex items-center gap-2 font-display text-sm font-bold uppercase tracking-wide">
+            <span className="text-red"><SkullIcon size="22px" /></span>
+            BLOODY SCISSORS — АДМИНКА
+            <span className="relative ml-1 text-mute">
+              <BellIcon size="18px" />
+              {unseenOrders > 0 && (
+                <span className="cut-sm absolute -right-2 -top-2 flex h-4 min-w-[16px] items-center justify-center bg-red px-1 font-mono text-[10px] text-ink">
+                  {unseenOrders}
+                </span>
+              )}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <a href="/" className="btn-ghost !px-3 !py-2 text-xs">НА САЙТ</a>
+            <a href="/merch" className="btn-ghost !px-3 !py-2 text-xs">МАГАЗИН</a>
+            <button className="btn !px-3 !py-2 text-xs" onClick={handleLogout}>ВЫЙТИ</button>
+          </div>
         </div>
       </header>
 
-      <main className="admin-main">
-        <section className="admin-section admin-section--orders">
-          <h2 className="admin-section-title"><BellIcon size="0.9em" /> ЗАКАЗЫ{unseenOrders > 0 ? ` (${unseenOrders} новых)` : ''}</h2>
-          <p className="admin-section-hint">Заказы из магазина «Мерч» — контактные данные покупателя для связи и оплаты.</p>
+      <main className="mx-auto max-w-6xl px-5">
+        <section className="glass mb-10 p-6">
+          <h2 className="flex items-center gap-2 font-display text-lg font-bold uppercase tracking-wide">
+            <BellIcon size="0.9em" /> Заказы{unseenOrders > 0 ? ` (${unseenOrders} новых)` : ''}
+          </h2>
+          <p className="mt-1 text-sm text-paper/60">Заявки из магазина «Мерч» — контактные данные покупателя для связи и оплаты.</p>
 
-          <div className="admin-list admin-list--orders">
-            {orders.length === 0 && <div className="admin-empty">Пока нет заказов</div>}
+          <div className="mt-5 flex flex-col gap-3">
+            {orders.length === 0 && <div className="font-mono text-xs uppercase tracking-widest2 text-mute">Пока нет заказов</div>}
             {orders.map((o) => (
-              <div className={`admin-order-item${o.seen ? '' : ' admin-order-item--unseen'}`} key={o.id}>
-                <div className="admin-order-top">
-                  <div>
-                    <div className="admin-order-item-title">{o.itemName}</div>
-                    <div className="admin-order-item-price">{o.itemPrice}</div>
+              <div
+                key={o.id}
+                className={`cut border p-4 ${o.seen ? 'border-line' : 'border-red/40 bg-red/5'}`}
+              >
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div className="flex flex-col gap-1">
+                    {o.items.map((item) => (
+                      <div key={item.id} className="text-sm">
+                        <span className="font-display font-semibold uppercase">{item.itemName}</span>
+                        <span className="ml-2 font-mono text-xs text-paper">{item.itemPrice} × {item.qty}</span>
+                      </div>
+                    ))}
                   </div>
-                  <div className="admin-order-time">{new Date(o.createdAt).toLocaleString('ru-RU')}</div>
+                  <div className="font-mono text-xs text-mute">{new Date(o.createdAt).toLocaleString('ru-RU')}</div>
                 </div>
-                <div className="admin-order-fields">
-                  <div><b>ФИО:</b> {o.fio}</div>
-                  <div><b>Телефон:</b> {o.phone}</div>
-                  <div><b>Индекс:</b> {o.postalCode}</div>
-                  <div><b>Почта:</b> {o.email}</div>
+                <div className="mt-3 grid grid-cols-1 gap-1 text-sm text-paper/80 sm:grid-cols-2">
+                  <div><b className="text-paper">ФИО:</b> {o.fio}</div>
+                  <div><b className="text-paper">Телефон:</b> {o.phone}</div>
+                  <div><b className="text-paper">Индекс:</b> {o.postalCode}</div>
+                  <div><b className="text-paper">Почта:</b> {o.email}</div>
                 </div>
-                <div className="admin-order-actions">
-                  {!o.seen && <button className="btn" onClick={() => handleMarkOrderSeen(o.id)}>ПРОЧИТАНО</button>}
-                  <button className="admin-item-delete" onClick={() => handleDeleteOrder(o.id)} aria-label="Удалить">
+                <div className="mt-3 flex items-center gap-3">
+                  {!o.seen && <button className="btn !px-3 !py-1.5 text-xs" onClick={() => handleMarkOrderSeen(o.id)}>ПРОЧИТАНО</button>}
+                  <button className="text-mute hover:text-red" onClick={() => handleDeleteOrder(o.id)} aria-label="Удалить">
                     <TrashIcon size="14px" />
                   </button>
                 </div>
@@ -357,44 +370,37 @@ export default function AdminPage() {
           </div>
         </section>
 
-        <div className="admin-grid">
-          <section className="admin-section">
-            <h2 className="admin-section-title"><MusicNoteIcon size="0.9em" /> ТРЕКИ</h2>
-            <p className="admin-section-hint">Добавленные треки сразу появляются в разделе «Треки» на главной.</p>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <section className="glass p-6">
+            <h2 className="flex items-center gap-2 font-display text-lg font-bold uppercase tracking-wide">
+              <MusicNoteIcon size="0.9em" /> Треки
+            </h2>
+            <p className="mt-1 text-sm text-paper/60">Добавленные треки сразу появляются в разделе «Треки» на главной.</p>
 
-            <form className="admin-form" onSubmit={handleAddTrack}>
-              {trackMsg && <div className={`admin-msg admin-msg--${trackMsg.type}`}>{trackMsg.text}</div>}
-              <div className="admin-field">
-                <label className="admin-label">Название</label>
-                <input className="admin-input" value={trackForm.name} onChange={(e) => setTrackForm((f) => ({ ...f, name: e.target.value }))} maxLength={100} required />
-              </div>
-              <div className="admin-field">
-                <label className="admin-label">Описание</label>
-                <textarea className="admin-textarea" value={trackForm.desc} onChange={(e) => setTrackForm((f) => ({ ...f, desc: e.target.value }))} maxLength={400} />
-              </div>
-              <div className="admin-field">
-                <label className="admin-label">Бейдж</label>
-                <select className="admin-select" value={trackForm.badgeVariant} onChange={(e) => setTrackForm((f) => ({ ...f, badgeVariant: e.target.value }))}>
-                  {BADGE_OPTIONS.map((b) => <option key={b.value} value={b.value}>{b.label}</option>)}
-                </select>
-              </div>
-              <div className="admin-field">
-                <label className="admin-label">Аудиофайл (mp3/wav/ogg, до 25 МБ)</label>
-                <input id="track-file-input" type="file" accept="audio/mpeg,audio/mp3,audio/wav,audio/ogg" className="admin-file" onChange={(e) => setTrackFile(e.target.files?.[0] || null)} required />
-              </div>
+            <form className="mt-4 flex flex-col gap-3" onSubmit={handleAddTrack}>
+              <Message msg={trackMsg} />
+              <Field label="Название">
+                <input className="field-input" value={trackForm.name} onChange={(e) => setTrackForm((f) => ({ ...f, name: e.target.value }))} maxLength={100} required />
+              </Field>
+              <Field label="Описание">
+                <textarea className="field-input" rows={3} value={trackForm.desc} onChange={(e) => setTrackForm((f) => ({ ...f, desc: e.target.value }))} maxLength={400} />
+              </Field>
+              <Field label="Аудиофайл (mp3/wav/ogg, до 25 МБ)">
+                <input id="track-file-input" type="file" accept="audio/mpeg,audio/mp3,audio/wav,audio/ogg" className="text-sm text-paper/80 file:mr-3 file:border file:border-line file:bg-ink-raised file:px-3 file:py-1.5 file:text-paper" onChange={(e) => setTrackFile(e.target.files?.[0] || null)} required />
+              </Field>
               <button type="submit" className="btn" disabled={trackSubmitting}>{trackSubmitting ? 'ЗАГРУЖАЮ...' : 'ДОБАВИТЬ ТРЕК'}</button>
             </form>
 
-            <div className="admin-list">
-              {tracks.length === 0 && <div className="admin-empty">Пока нет добавленных треков</div>}
+            <div className="mt-5 flex flex-col gap-2">
+              {tracks.length === 0 && <div className="font-mono text-xs uppercase tracking-widest2 text-mute">Пока нет добавленных треков</div>}
               {tracks.map((t) => (
-                <div className="admin-item" key={t.id}>
-                  <div className="admin-item-thumb"><MusicNoteIcon size="18px" /></div>
-                  <div className="admin-item-body">
-                    <div className="admin-item-name">{t.name}</div>
-                    <audio className="admin-item-audio" src={t.src} controls preload="none" />
+                <div className="cut-sm flex items-center gap-3 border border-line p-3" key={t.id}>
+                  <div className="flex h-9 w-9 flex-none items-center justify-center border border-line text-mute"><MusicNoteIcon size="16px" /></div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-display text-sm font-semibold uppercase">{t.name}</div>
+                    <audio className="mt-1 h-8 w-full" src={t.src} controls preload="none" />
                   </div>
-                  <button className="admin-item-delete" onClick={() => handleDeleteTrack(t.id)} aria-label="Удалить">
+                  <button className="text-mute hover:text-red" onClick={() => handleDeleteTrack(t.id)} aria-label="Удалить">
                     <TrashIcon size="14px" />
                   </button>
                 </div>
@@ -402,45 +408,41 @@ export default function AdminPage() {
             </div>
           </section>
 
-          <section className="admin-section">
-            <h2 className="admin-section-title"><BagIcon size="0.9em" /> ТОВАРЫ</h2>
-            <p className="admin-section-hint">Добавленные товары сразу появляются на странице «Магазин».</p>
+          <section className="glass p-6">
+            <h2 className="flex items-center gap-2 font-display text-lg font-bold uppercase tracking-wide">
+              <BagIcon size="0.9em" /> Товары
+            </h2>
+            <p className="mt-1 text-sm text-paper/60">Добавленные товары сразу появляются на странице «Магазин».</p>
 
-            <form className="admin-form" onSubmit={handleAddMerch}>
-              {merchMsg && <div className={`admin-msg admin-msg--${merchMsg.type}`}>{merchMsg.text}</div>}
-              <div className="admin-form-row">
-                <div className="admin-field">
-                  <label className="admin-label">Название</label>
-                  <input className="admin-input" value={merchForm.name} onChange={(e) => setMerchForm((f) => ({ ...f, name: e.target.value }))} maxLength={100} required />
-                </div>
-                <div className="admin-field">
-                  <label className="admin-label">Цена</label>
-                  <input className="admin-input" value={merchForm.price} onChange={(e) => setMerchForm((f) => ({ ...f, price: e.target.value }))} placeholder="1500 ₽" maxLength={30} required />
-                </div>
-              </div>
-              <div className="admin-field">
-                <label className="admin-label">Описание</label>
-                <textarea className="admin-textarea" value={merchForm.desc} onChange={(e) => setMerchForm((f) => ({ ...f, desc: e.target.value }))} maxLength={400} />
-              </div>
-              <div className="admin-field">
-                <label className="admin-label">Фото (jpg/png/webp, до 8 МБ)</label>
-                <input id="merch-file-input" type="file" accept="image/jpeg,image/png,image/webp" className="admin-file" onChange={(e) => setMerchFile(e.target.files?.[0] || null)} />
-              </div>
+            <form className="mt-4 flex flex-col gap-3" onSubmit={handleAddMerch}>
+              <Message msg={merchMsg} />
+              <Field label="Название">
+                <input className="field-input" value={merchForm.name} onChange={(e) => setMerchForm((f) => ({ ...f, name: e.target.value }))} maxLength={100} required />
+              </Field>
+              <Field label="Цена">
+                <input className="field-input" value={merchForm.price} onChange={(e) => setMerchForm((f) => ({ ...f, price: e.target.value }))} placeholder="1500 ₽" maxLength={30} required />
+              </Field>
+              <Field label="Описание">
+                <textarea className="field-input" rows={3} value={merchForm.desc} onChange={(e) => setMerchForm((f) => ({ ...f, desc: e.target.value }))} maxLength={400} />
+              </Field>
+              <Field label="Фото (jpg/png/webp, до 8 МБ)">
+                <input id="merch-file-input" type="file" accept="image/jpeg,image/png,image/webp" className="text-sm text-paper/80 file:mr-3 file:border file:border-line file:bg-ink-raised file:px-3 file:py-1.5 file:text-paper" onChange={(e) => setMerchFile(e.target.files?.[0] || null)} />
+              </Field>
               <button type="submit" className="btn" disabled={merchSubmitting}>{merchSubmitting ? 'ЗАГРУЖАЮ...' : 'ДОБАВИТЬ ТОВАР'}</button>
             </form>
 
-            <div className="admin-list">
-              {merch.length === 0 && <div className="admin-empty">Пока нет добавленных товаров</div>}
+            <div className="mt-5 flex flex-col gap-2">
+              {merch.length === 0 && <div className="font-mono text-xs uppercase tracking-widest2 text-mute">Пока нет добавленных товаров</div>}
               {merch.map((item) => (
-                <div className="admin-item" key={item.id}>
-                  <div className="admin-item-thumb" style={item.image ? { backgroundImage: `url('${item.image}')` } : undefined}>
-                    {!item.image && <BagIcon size="18px" />}
+                <div className="cut-sm flex items-center gap-3 border border-line p-3" key={item.id}>
+                  <div className="h-9 w-9 flex-none border border-line bg-cover bg-center text-mute" style={item.image ? { backgroundImage: `url('${item.image}')` } : undefined}>
+                    {!item.image && <div className="flex h-full items-center justify-center"><BagIcon size="16px" /></div>}
                   </div>
-                  <div className="admin-item-body">
-                    <div className="admin-item-name">{item.name}</div>
-                    <div className="admin-item-sub">{item.price}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-display text-sm font-semibold uppercase">{item.name}</div>
+                    <div className="font-mono text-xs text-paper">{item.price}</div>
                   </div>
-                  <button className="admin-item-delete" onClick={() => handleDeleteMerch(item.id)} aria-label="Удалить">
+                  <button className="text-mute hover:text-red" onClick={() => handleDeleteMerch(item.id)} aria-label="Удалить">
                     <TrashIcon size="14px" />
                   </button>
                 </div>
@@ -448,59 +450,50 @@ export default function AdminPage() {
             </div>
           </section>
 
-          <section className="admin-section">
-            <h2 className="admin-section-title"><CalendarIcon size="0.9em" /> КОНЦЕРТЫ</h2>
-            <p className="admin-section-hint">Добавленные концерты сразу появляются в разделе «Концерты» на главной.</p>
+          <section className="glass p-6">
+            <h2 className="flex items-center gap-2 font-display text-lg font-bold uppercase tracking-wide">
+              <CalendarIcon size="0.9em" /> Концерты
+            </h2>
+            <p className="mt-1 text-sm text-paper/60">Добавленные концерты сразу появляются в разделе «Концерты» на главной.</p>
 
-            <form className="admin-form" onSubmit={handleAddConcert}>
-              {concertMsg && <div className={`admin-msg admin-msg--${concertMsg.type}`}>{concertMsg.text}</div>}
-              <div className="admin-form-row">
-                <div className="admin-field">
-                  <label className="admin-label">Дата</label>
-                  <DatePicker value={concertForm.date} onChange={(date) => setConcertForm((f) => ({ ...f, date }))} />
-                </div>
-                <div className="admin-field">
-                  <label className="admin-label">Время начала (МСК)</label>
-                  <TimePicker value={concertForm.time} onChange={(time) => setConcertForm((f) => ({ ...f, time }))} />
-                </div>
-              </div>
-              <div className="admin-form-row">
-                <div className="admin-field">
-                  <label className="admin-label">Город</label>
-                  <CityAutocomplete value={concertForm.city} onChange={(city) => setConcertForm((f) => ({ ...f, city }))} />
-                </div>
-                <div className="admin-field">
-                  <label className="admin-label">Площадка</label>
-                  <input className="admin-input" value={concertForm.venue} onChange={(e) => setConcertForm((f) => ({ ...f, venue: e.target.value }))} maxLength={150} required />
-                </div>
-              </div>
-              <div className="admin-field">
-                <label className="admin-label">Ссылка на билеты (необязательно)</label>
-                <input className="admin-input" value={concertForm.ticketUrl} onChange={(e) => setConcertForm((f) => ({ ...f, ticketUrl: e.target.value }))} placeholder="https://..." maxLength={300} />
-              </div>
-              <div className="admin-field">
-                <label className="admin-label">Описание</label>
-                <textarea className="admin-textarea" value={concertForm.desc} onChange={(e) => setConcertForm((f) => ({ ...f, desc: e.target.value }))} maxLength={400} />
-              </div>
-              <div className="admin-field">
-                <label className="admin-label">Афиша (jpg/png/webp, до 8 МБ, необязательно)</label>
-                <input id="concert-file-input" type="file" accept="image/jpeg,image/png,image/webp" className="admin-file" onChange={(e) => setConcertFile(e.target.files?.[0] || null)} />
-              </div>
+            <form className="mt-4 flex flex-col gap-3" onSubmit={handleAddConcert}>
+              <Message msg={concertMsg} />
+              <Field label="Дата">
+                <DatePicker value={concertForm.date} onChange={(date) => setConcertForm((f) => ({ ...f, date }))} />
+              </Field>
+              <Field label="Время начала (МСК)">
+                <TimePicker value={concertForm.time} onChange={(time) => setConcertForm((f) => ({ ...f, time }))} />
+              </Field>
+              <Field label="Город">
+                <CityAutocomplete value={concertForm.city} onChange={(city) => setConcertForm((f) => ({ ...f, city }))} />
+              </Field>
+              <Field label="Площадка">
+                <input className="field-input" value={concertForm.venue} onChange={(e) => setConcertForm((f) => ({ ...f, venue: e.target.value }))} maxLength={150} required />
+              </Field>
+              <Field label="Ссылка на билеты (необязательно)">
+                <input className="field-input" value={concertForm.ticketUrl} onChange={(e) => setConcertForm((f) => ({ ...f, ticketUrl: e.target.value }))} placeholder="https://..." maxLength={300} />
+              </Field>
+              <Field label="Описание">
+                <textarea className="field-input" rows={3} value={concertForm.desc} onChange={(e) => setConcertForm((f) => ({ ...f, desc: e.target.value }))} maxLength={400} />
+              </Field>
+              <Field label="Афиша (jpg/png/webp, до 8 МБ, необязательно)">
+                <input id="concert-file-input" type="file" accept="image/jpeg,image/png,image/webp" className="text-sm text-paper/80 file:mr-3 file:border file:border-line file:bg-ink-raised file:px-3 file:py-1.5 file:text-paper" onChange={(e) => setConcertFile(e.target.files?.[0] || null)} />
+              </Field>
               <button type="submit" className="btn" disabled={concertSubmitting}>{concertSubmitting ? 'ДОБАВЛЯЮ...' : 'ДОБАВИТЬ КОНЦЕРТ'}</button>
             </form>
 
-            <div className="admin-list">
-              {concerts.length === 0 && <div className="admin-empty">Пока нет добавленных концертов</div>}
+            <div className="mt-5 flex flex-col gap-2">
+              {concerts.length === 0 && <div className="font-mono text-xs uppercase tracking-widest2 text-mute">Пока нет добавленных концертов</div>}
               {concerts.slice().sort((a, b) => a.date.localeCompare(b.date)).map((c) => (
-                <div className="admin-item" key={c.id}>
-                  <div className="admin-item-thumb" style={c.poster ? { backgroundImage: `url('${c.poster}')` } : undefined}>
-                    {!c.poster && <CalendarIcon size="18px" />}
+                <div className="cut-sm flex items-center gap-3 border border-line p-3" key={c.id}>
+                  <div className="h-9 w-9 flex-none border border-line bg-cover bg-center text-mute" style={c.poster ? { backgroundImage: `url('${c.poster}')` } : undefined}>
+                    {!c.poster && <div className="flex h-full items-center justify-center"><CalendarIcon size="16px" /></div>}
                   </div>
-                  <div className="admin-item-body">
-                    <div className="admin-item-name">{c.venue}, {c.city}</div>
-                    <div className="admin-item-sub">{c.date}{c.time ? ` в ${c.time}` : ''}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-display text-sm font-semibold uppercase">{c.venue}, {c.city}</div>
+                    <div className="font-mono text-xs text-paper">{c.date}{c.time ? ` в ${c.time}` : ''}</div>
                   </div>
-                  <button className="admin-item-delete" onClick={() => handleDeleteConcert(c.id)} aria-label="Удалить">
+                  <button className="text-mute hover:text-red" onClick={() => handleDeleteConcert(c.id)} aria-label="Удалить">
                     <TrashIcon size="14px" />
                   </button>
                 </div>

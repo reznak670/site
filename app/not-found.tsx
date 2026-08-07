@@ -2,44 +2,17 @@ import { SkullIcon } from './icons'
 
 export default function NotFound() {
   return (
-    <div style={{
-      background: '#0a0000',
-      color: '#ff1744',
-      fontFamily: 'monospace',
-      textAlign: 'center',
-      padding: '50px',
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }}>
-      <h1 style={{ fontSize: '6em', textShadow: '0 0 30px #ff1744', margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.15em' }}>
-        <SkullIcon /> 404
-      </h1>
-      <p style={{ fontSize: '1.5em', color: '#ff5252' }}>
-        Этой страницы не существует
-      </p>
-      <p style={{ color: '#888' }}>
-        Как и твоих шансов выжить на нашем концерте
-      </p>
-      <a 
-        href="/" 
-        style={{
-          color: '#ff1744',
-          border: '1px solid #ff1744',
-          padding: '12px 25px',
-          textDecoration: 'none',
-          marginTop: '20px',
-          fontFamily: '"Oswald", "Arial Narrow", sans-serif',
-          fontWeight: 600,
-          textTransform: 'uppercase',
-          fontSize: '1.2em',
-          letterSpacing: '2px',
-          transition: 'all 0.3s'
-        }}
+    <div className="scanline-overlay flex min-h-screen flex-col items-center justify-center gap-3 px-6 text-center">
+      <h1
+        data-text="404"
+        className="glitch flex items-center gap-3 font-display text-7xl font-bold text-red drop-shadow-[0_0_30px_rgba(212,16,42,0.5)]"
       >
-        ← ВЕРНУТЬСЯ НА БАЗУ
+        <SkullIcon size="0.9em" /> 404
+      </h1>
+      <p className="text-lg text-paper">Этой страницы не существует</p>
+      <p className="font-mono text-sm text-mute">Как и твоих шансов выжить на нашем концерте</p>
+      <a href="/" className="btn mt-4">
+        ← Вернуться на базу
       </a>
     </div>
   )

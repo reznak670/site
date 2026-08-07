@@ -43,18 +43,25 @@ function Wheel({ options, value, onChange }: { options: string[]; value: string;
   }
 
   return (
-    <div className="time-wheel" ref={ref} onScroll={handleScroll}>
-      <div className="time-wheel-pad" aria-hidden />
+    <div
+      className="no-scrollbar h-[120px] w-16 snap-y snap-mandatory overflow-y-auto text-center"
+      ref={ref}
+      onScroll={handleScroll}
+    >
+      <div style={{ height: ITEM_HEIGHT }} aria-hidden />
       {options.map((opt, i) => (
         <div
           key={opt}
-          className={`time-wheel-item${opt === value ? ' time-wheel-item--active' : ''}`}
+          className={`flex snap-center items-center justify-center font-mono text-lg transition-colors ${
+            opt === value ? 'text-red-bright font-semibold' : 'text-paper/40'
+          }`}
+          style={{ height: ITEM_HEIGHT }}
           onClick={() => selectIndex(i)}
         >
           {opt}
         </div>
       ))}
-      <div className="time-wheel-pad" aria-hidden />
+      <div style={{ height: ITEM_HEIGHT }} aria-hidden />
     </div>
   )
 }
@@ -78,22 +85,22 @@ export default function TimePicker({ value, onChange }: { value: string; onChang
 
   return (
     <>
-      <button type="button" className="admin-input time-picker-trigger" onClick={openPicker}>
+      <button type="button" className="field-input text-left" onClick={openPicker}>
         {value || 'Выбрать время'}
       </button>
       {open && (
-        <div className="time-picker-overlay" onClick={() => setOpen(false)}>
-          <div className="time-picker-sheet" onClick={(e) => e.stopPropagation()}>
-            <div className="time-picker-header">Время начала</div>
-            <div className="time-wheels">
-              <div className="time-wheels-frame" aria-hidden />
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-ink/80 backdrop-blur-sm p-4" onClick={() => setOpen(false)}>
+          <div className="glass w-full max-w-xs p-5" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-3 font-mono text-xs uppercase tracking-widest2 text-red">Время начала</div>
+            <div className="relative flex items-center justify-center gap-2">
+              <div className="pointer-events-none absolute inset-x-0 top-1/2 h-10 -translate-y-1/2 border-y border-red/40 bg-red/5" aria-hidden />
               <Wheel options={HOURS} value={hour} onChange={setHour} />
-              <div className="time-wheel-colon">:</div>
+              <div className="font-display text-xl text-paper/60">:</div>
               <Wheel options={MINUTES} value={minute} onChange={setMinute} />
             </div>
-            <div className="time-picker-actions">
-              <button type="button" className="time-picker-cancel" onClick={() => setOpen(false)}>ОТМЕНА</button>
-              <button type="button" className="btn" onClick={confirm}>ГОТОВО</button>
+            <div className="mt-4 flex items-center justify-end gap-3">
+              <button type="button" className="font-mono text-xs uppercase tracking-widest2 text-mute hover:text-paper" onClick={() => setOpen(false)}>ОТМЕНА</button>
+              <button type="button" className="btn !px-4 !py-2 text-xs" onClick={confirm}>ГОТОВО</button>
             </div>
           </div>
         </div>

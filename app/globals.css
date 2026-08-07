@@ -1,0 +1,219 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-line;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply relative bg-ink text-paper font-sans antialiased;
+  }
+
+  /* Analog static grain over the whole page — cheap tiled SVG noise, no canvas/JS. */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    pointer-events: none;
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation: noiseShift 0.6s steps(8) infinite;
+  }
+
+  /* Permanent CRT/VHS scanlines over the whole site, not just the hero. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 998;
+    pointer-events: none;
+    opacity: 0.04;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      rgba(240, 237, 230, 0.6) 0px,
+      rgba(240, 237, 230, 0.6) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    background-size: 100% 6px;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+
+  ::selection {
+    @apply bg-red text-paper;
+  }
+
+  a, button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    outline: 2px solid theme('colors.red.DEFAULT');
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .eyebrow {
+    @apply font-mono text-[11px] uppercase tracking-widest2 text-red;
+  }
+
+  /* Torn-tape corners: diagonal snip top-right + bottom-left. */
+  .cut {
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+  }
+  .cut-sm {
+    clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px));
+  }
+
+  .panel {
+    @apply cut border border-line bg-ink-soft/70 backdrop-blur-sm;
+  }
+
+  .glass {
+    @apply cut border border-red/25 bg-white/[0.03] backdrop-blur-md;
+  }
+
+  /* Хоррор-заголовки: готический блэклеттер Cattedrale плюс красно-белый разъезд
+     каналов — читается как хроматическая аберрация VHS. Начертание одно (400),
+     поэтому синтетический bold от утилит Tailwind глушим, иначе браузер
+     размазывает глифы. Сдвиг каналов меньше, чем у .font-blood: у блэклеттера
+     плотные штрихи, и на 1.5px тени залезают в соседние литеры. */
+  .font-horror {
+    font-family: var(--font-horror), var(--font-display), sans-serif;
+    font-synthesis: none;
+    font-weight: 400;
+    text-shadow: -1px 0 rgba(212, 16, 42, 0.45), 1px 0 rgba(240, 237, 230, 0.25);
+  }
+
+  /* Стекающая краска/кровь — для имени группы и редких акцентов. */
+  .font-blood {
+    font-family: var(--font-blood), var(--font-display), sans-serif;
+    font-synthesis: none;
+    font-weight: 400;
+    text-shadow: -1.5px 0 rgba(212, 16, 42, 0.4), 1.5px 0 rgba(240, 237, 230, 0.2);
+  }
+
+  /* Viewfinder-style corner brackets on every framed text panel — sits in the
+     two corners the torn-tape .cut clip-path leaves square, so all four
+     corners of a panel end up with a distinct treatment. */
+  .panel, .glass {
+    position: relative;
+  }
+  .panel::before, .panel::after,
+  .glass::before, .glass::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+    opacity: 0.7;
+  }
+  .panel::before, .glass::before {
+    top: -1px;
+    left: -1px;
+    border-top: 2px solid theme('colors.red.DEFAULT');
+    border-left: 2px solid theme('colors.red.DEFAULT');
+  }
+  .panel::after, .glass::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 2px solid theme('colors.red.DEFAULT');
+    border-right: 2px solid theme('colors.red.DEFAULT');
+  }
+
+  /* Faint tiled gothic-cross watermark for section backgrounds. */
+  .cross-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath transform='translate(50 50) scale(0.75) translate(-50 -50)' fill='%23f0ede6' fill-opacity='0.06' d='M 50 7 C 52 11 56.8 15 56.8 21 C 57 26 52.8 26 52.8 30 C 53 32.5 56 32 58.5 33.5 C 57 35 56 35.5 56 37 C 60 35 64 33.5 69 34.5 C 74 35.5 78 37 81.5 39.5 C 76 41.5 70 42.5 64 43.5 C 61 44 59 46.5 57 46.8 C 55.5 45 54.2 45 54.2 47.5 C 54.2 52 52.5 53 52.5 57.5 C 52.5 62 56.8 63 56.8 67.5 C 56.8 74 52.5 78 50 93 C 47.5 78 43.2 74 43.2 67.5 C 43.2 63 47.5 62 47.5 57.5 C 47.5 53 45.8 52 45.8 47.5 C 45.8 45 44.5 45 43 46.8 C 41 46.5 39 44 36 43.5 C 30 42.5 24 41.5 18.5 39.5 C 22 37 26 35.5 31 34.5 C 36 33.5 40 35 44 37 C 44 35.5 43 35 41.5 33.5 C 44 32 47 32.5 47.2 30 C 47.2 26 43 26 43.2 21 C 43.2 15 48 11 50 7 Z'/%3E%3C/svg%3E");
+    background-size: 110px 110px;
+  }
+
+  .btn {
+    @apply cut-sm inline-flex items-center justify-center gap-2 border border-red/70
+      bg-red/10 px-6 py-3 font-display text-sm font-semibold uppercase tracking-wider text-paper
+      transition-all duration-150 hover:bg-red hover:text-paper hover:shadow-glow active:scale-[0.98]
+      disabled:pointer-events-none disabled:opacity-40;
+  }
+
+  .btn-ghost {
+    @apply cut-sm inline-flex items-center justify-center gap-2 border border-line
+      px-6 py-3 font-display text-sm font-semibold uppercase tracking-wider text-paper/80
+      transition-colors duration-150 hover:border-paper/50 hover:text-paper;
+  }
+
+  .field-input {
+    @apply cut-sm w-full border border-line bg-ink/60 px-4 py-3 text-paper placeholder:text-mute/70
+      outline-none transition-colors focus:border-red/70;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .snap-row {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .snap-item {
+    scroll-snap-align: center;
+  }
+
+  /* Subtle moving scanline overlay for hero/dark surfaces. */
+  .scanline-overlay {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      rgba(240, 237, 230, 0.05) 0px,
+      rgba(240, 237, 230, 0.05) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    background-size: 100% 6px;
+  }
+
+  /* Glitch headline: base text plus two mis-registered layers (red + white channel
+     split, like a mistracked tape) that flicker into view via clip-path. */
+  .glitch {
+    position: relative;
+    display: inline-block;
+  }
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+  }
+  .glitch::before {
+    color: theme('colors.paper');
+    clip-path: inset(0 0 55% 0);
+    animation: glitchSlice 3.4s steps(1) infinite;
+  }
+  .glitch::after {
+    color: theme('colors.red.bright');
+    clip-path: inset(55% 0 0 0);
+    animation: glitchSlice 3.4s steps(1) infinite reverse;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

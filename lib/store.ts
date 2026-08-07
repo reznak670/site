@@ -1,19 +1,9 @@
-import { promises as fs } from 'fs'
-import path from 'path'
-import crypto from 'crypto'
-
-const DATA_DIR = path.join(process.cwd(), 'data')
-const TRACKS_FILE = path.join(DATA_DIR, 'tracks.json')
-const MERCH_FILE = path.join(DATA_DIR, 'merch.json')
-const ORDERS_FILE = path.join(DATA_DIR, 'orders.json')
-const CONCERTS_FILE = path.join(DATA_DIR, 'concerts.json')
+import { prisma } from './db'
 
 export type Track = {
   id: string
   name: string
   desc: string
-  badge: string
-  badgeVariant: string
   src: string
   createdAt: number
 }
@@ -27,17 +17,24 @@ export type MerchItem = {
   createdAt: number
 }
 
-export type Order = {
-  id: string
+export type OrderItemInput = {
   itemId: string
   itemName: string
   itemPrice: string
+  qty: number
+}
+
+export type OrderItemRecord = OrderItemInput & { id: string }
+
+export type Order = {
+  id: string
   fio: string
   phone: string
   postalCode: string
   email: string
   seen: boolean
   createdAt: number
+  items: OrderItemRecord[]
 }
 
 export type Concert = {
@@ -52,89 +49,92 @@ export type Concert = {
   createdAt: number
 }
 
-async function readJson<T>(file: string, fallback: T): Promise<T> {
-  try {
-    const raw = await fs.readFile(file, 'utf-8')
-    return JSON.parse(raw) as T
-  } catch {
-    return fallback
-  }
+function toEpoch(date: Date): number {
+  return date.getTime()
 }
 
-async function writeJson(file: string, data: unknown): Promise<void> {
-  await fs.mkdir(DATA_DIR, { recursive: true })
-  await fs.writeFile(file, JSON.stringify(data, null, 2), 'utf-8')
-}
+// Tracks
 
 export async function getTracks(): Promise<Track[]> {
-  return readJson<Track[]>(TRACKS_FILE, [])
+  const rows = await prisma.track.findMany({ orderBy: { createdAt: 'asc' } })
+  return rows.map((t) => ({ id: t.id, name: t.name, desc: t.desc, src: t.src, createdAt: toEpoch(t.createdAt) }))
 }
 
 export async function addTrack(input: Omit<Track, 'id' | 'createdAt'>): Promise<Track> {
-  const tracks = await getTracks()
-  const track: Track = { ...input, id: crypto.randomUUID(), createdAt: Date.now() }
-  tracks.push(track)
-  await writeJson(TRACKS_FILE, tracks)
-  return track
+  const row = await prisma.track.create({ data: input })
+  return { id: row.id, name: row.name, desc: row.desc, src: row.src, createdAt: toEpoch(row.createdAt) }
 }
 
 export async function deleteTrack(id: string): Promise<void> {
-  const tracks = await getTracks()
-  await writeJson(TRACKS_FILE, tracks.filter((t) => t.id !== id))
+  await prisma.track.delete({ where: { id } }).catch(() => {})
 }
 
+// Merch
+
 export async function getMerch(): Promise<MerchItem[]> {
-  return readJson<MerchItem[]>(MERCH_FILE, [])
+  const rows = await prisma.merchItem.findMany({ orderBy: { createdAt: 'asc' } })
+  return rows.map((m) => ({ ...m, createdAt: toEpoch(m.createdAt) }))
 }
 
 export async function addMerch(input: Omit<MerchItem, 'id' | 'createdAt'>): Promise<MerchItem> {
-  const items = await getMerch()
-  const item: MerchItem = { ...input, id: crypto.randomUUID(), createdAt: Date.now() }
-  items.push(item)
-  await writeJson(MERCH_FILE, items)
-  return item
+  const row = await prisma.merchItem.create({ data: input })
+  return { ...row, createdAt: toEpoch(row.createdAt) }
 }
 
 export async function deleteMerch(id: string): Promise<void> {
-  const items = await getMerch()
-  await writeJson(MERCH_FILE, items.filter((i) => i.id !== id))
+  await prisma.merchItem.delete({ where: { id } }).catch(() => {})
 }
+
+// Orders
 
 export async function getOrders(): Promise<Order[]> {
-  return readJson<Order[]>(ORDERS_FILE, [])
+  const rows = await prisma.order.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: { items: true },
+  })
+  return rows.map((o) => ({ ...o, createdAt: toEpoch(o.createdAt) }))
 }
 
-export async function addOrder(input: Omit<Order, 'id' | 'createdAt' | 'seen'>): Promise<Order> {
-  const orders = await getOrders()
-  const order: Order = { ...input, id: crypto.randomUUID(), seen: false, createdAt: Date.now() }
-  orders.push(order)
-  await writeJson(ORDERS_FILE, orders)
-  return order
+export async function addOrder(input: {
+  fio: string
+  phone: string
+  postalCode: string
+  email: string
+  items: OrderItemInput[]
+}): Promise<Order> {
+  const row = await prisma.order.create({
+    data: {
+      fio: input.fio,
+      phone: input.phone,
+      postalCode: input.postalCode,
+      email: input.email,
+      items: { create: input.items },
+    },
+    include: { items: true },
+  })
+  return { ...row, createdAt: toEpoch(row.createdAt) }
 }
 
 export async function markOrderSeen(id: string): Promise<void> {
-  const orders = await getOrders()
-  await writeJson(ORDERS_FILE, orders.map((o) => (o.id === id ? { ...o, seen: true } : o)))
+  await prisma.order.update({ where: { id }, data: { seen: true } }).catch(() => {})
 }
 
 export async function deleteOrder(id: string): Promise<void> {
-  const orders = await getOrders()
-  await writeJson(ORDERS_FILE, orders.filter((o) => o.id !== id))
+  await prisma.order.delete({ where: { id } }).catch(() => {})
 }
 
+// Concerts
+
 export async function getConcerts(): Promise<Concert[]> {
-  return readJson<Concert[]>(CONCERTS_FILE, [])
+  const rows = await prisma.concert.findMany({ orderBy: { date: 'asc' } })
+  return rows.map((c) => ({ ...c, createdAt: toEpoch(c.createdAt) }))
 }
 
 export async function addConcert(input: Omit<Concert, 'id' | 'createdAt'>): Promise<Concert> {
-  const concerts = await getConcerts()
-  const concert: Concert = { ...input, id: crypto.randomUUID(), createdAt: Date.now() }
-  concerts.push(concert)
-  await writeJson(CONCERTS_FILE, concerts)
-  return concert
+  const row = await prisma.concert.create({ data: input })
+  return { ...row, createdAt: toEpoch(row.createdAt) }
 }
 
 export async function deleteConcert(id: string): Promise<void> {
-  const concerts = await getConcerts()
-  await writeJson(CONCERTS_FILE, concerts.filter((c) => c.id !== id))
+  await prisma.concert.delete({ where: { id } }).catch(() => {})
 }

@@ -41,9 +41,9 @@ export default function CityAutocomplete({
   }
 
   return (
-    <div className="city-autocomplete">
+    <div className="relative">
       <input
-        className="admin-input"
+        className="field-input"
         value={value}
         onChange={(e) => { onChange(e.target.value); setOpen(true); setHighlight(0) }}
         onFocus={() => setOpen(true)}
@@ -55,11 +55,11 @@ export default function CityAutocomplete({
         required
       />
       {open && suggestions.length > 0 && (
-        <ul className="city-autocomplete-list">
+        <ul className="glass absolute inset-x-0 top-full z-10 mt-1 max-h-60 overflow-y-auto py-1">
           {suggestions.map((city, i) => (
             <li
               key={city}
-              className={`city-autocomplete-item${i === highlight ? ' city-autocomplete-item--active' : ''}`}
+              className={`cursor-pointer px-4 py-2 text-sm ${i === highlight ? 'bg-red/15 text-red-bright' : 'text-paper/85'}`}
               onMouseDown={(e) => { e.preventDefault(); select(city) }}
               onMouseEnter={() => setHighlight(i)}
             >

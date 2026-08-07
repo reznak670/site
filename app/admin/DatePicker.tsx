@@ -75,24 +75,24 @@ export default function DatePicker({ value, onChange }: { value: string; onChang
 
   return (
     <>
-      <button type="button" className="admin-input date-picker-trigger" onClick={openPicker}>
+      <button type="button" className="field-input text-left" onClick={openPicker}>
         {value ? formatDisplay(value) : 'Выбрать дату'}
       </button>
       {open && (
-        <div className="time-picker-overlay" onClick={() => setOpen(false)}>
-          <div className="date-picker-sheet" onClick={(e) => e.stopPropagation()}>
-            <div className="time-picker-header">Дата мероприятия</div>
-            <div className="date-picker-header">
-              <button type="button" className="date-picker-nav" onClick={() => shiftMonth(-1)} aria-label="Предыдущий месяц">‹</button>
-              <button type="button" className="date-picker-title date-picker-title--today" onClick={jumpToday}>{MONTHS[viewMonth]} {viewYear}</button>
-              <button type="button" className="date-picker-nav" onClick={() => shiftMonth(1)} aria-label="Следующий месяц">›</button>
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-ink/80 backdrop-blur-sm p-4" onClick={() => setOpen(false)}>
+          <div className="glass w-full max-w-xs p-5" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-3 font-mono text-xs uppercase tracking-widest2 text-red">Дата мероприятия</div>
+            <div className="mb-3 flex items-center justify-between">
+              <button type="button" className="flex h-8 w-8 items-center justify-center text-lg text-paper/70 hover:text-red" onClick={() => shiftMonth(-1)} aria-label="Предыдущий месяц">‹</button>
+              <button type="button" className="font-display text-sm font-semibold uppercase tracking-wide hover:text-red" onClick={jumpToday}>{MONTHS[viewMonth]} {viewYear}</button>
+              <button type="button" className="flex h-8 w-8 items-center justify-center text-lg text-paper/70 hover:text-red" onClick={() => shiftMonth(1)} aria-label="Следующий месяц">›</button>
             </div>
-            <div className="date-picker-weekdays">
-              {WEEKDAYS.map((w) => <div key={w} className="date-picker-weekday">{w}</div>)}
+            <div className="mb-1 grid grid-cols-7 gap-1">
+              {WEEKDAYS.map((w) => <div key={w} className="py-1 text-center font-mono text-[10px] uppercase text-mute">{w}</div>)}
             </div>
-            <div className="date-picker-grid">
+            <div className="grid grid-cols-7 gap-1">
               {cells.map((d, i) => {
-                if (d === null) return <div key={`pad-${i}`} className="date-picker-cell date-picker-cell--empty" />
+                if (d === null) return <div key={`pad-${i}`} className="h-9 w-9" />
                 const cellValue = toValue(viewYear, viewMonth, d)
                 const isSelected = cellValue === pending
                 const isToday = cellValue === todayStr
@@ -100,7 +100,13 @@ export default function DatePicker({ value, onChange }: { value: string; onChang
                   <button
                     type="button"
                     key={d}
-                    className={`date-picker-cell${isSelected ? ' date-picker-cell--selected' : ''}${isToday && !isSelected ? ' date-picker-cell--today' : ''}`}
+                    className={`flex h-9 w-9 items-center justify-center text-sm transition-colors ${
+                      isSelected
+                        ? 'bg-red text-ink font-semibold'
+                        : isToday
+                          ? 'border border-paper/40 text-paper'
+                          : 'text-paper/80 hover:bg-red/10'
+                    }`}
                     onClick={() => selectDay(d)}
                   >
                     {d}
@@ -108,9 +114,9 @@ export default function DatePicker({ value, onChange }: { value: string; onChang
                 )
               })}
             </div>
-            <div className="time-picker-actions">
-              <button type="button" className="time-picker-cancel" onClick={() => setOpen(false)}>ОТМЕНА</button>
-              <button type="button" className="btn" onClick={confirm}>ГОТОВО</button>
+            <div className="mt-4 flex items-center justify-end gap-3">
+              <button type="button" className="font-mono text-xs uppercase tracking-widest2 text-mute hover:text-paper" onClick={() => setOpen(false)}>ОТМЕНА</button>
+              <button type="button" className="btn !px-4 !py-2 text-xs" onClick={confirm}>ГОТОВО</button>
             </div>
           </div>
         </div>

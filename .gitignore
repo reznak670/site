@@ -1,3 +1,22 @@
+# env
+.env
+.env.local
+.env*.local
+
+# database
+/prisma/*.db
+/prisma/*.db-journal
+/dev.db
+/dev.db-journal
+
+# user uploads
+/public/sound/uploads/*
+!/public/sound/uploads/.gitkeep
+/public/img/merch/*
+!/public/img/merch/.gitkeep
+/public/img/concerts/*
+!/public/img/concerts/.gitkeep
+
 # dependencies
 /node_modules
 
@@ -25,3 +44,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/lib/generated/prisma

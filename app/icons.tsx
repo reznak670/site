@@ -1,3 +1,11 @@
+export function CrossIcon({ size = '1em' }: { size?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} fill="currentColor" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <path d="M 50 7 C 52 11 56.8 15 56.8 21 C 57 26 52.8 26 52.8 30 C 53 32.5 56 32 58.5 33.5 C 57 35 56 35.5 56 37 C 60 35 64 33.5 69 34.5 C 74 35.5 78 37 81.5 39.5 C 76 41.5 70 42.5 64 43.5 C 61 44 59 46.5 57 46.8 C 55.5 45 54.2 45 54.2 47.5 C 54.2 52 52.5 53 52.5 57.5 C 52.5 62 56.8 63 56.8 67.5 C 56.8 74 52.5 78 50 93 C 47.5 78 43.2 74 43.2 67.5 C 43.2 63 47.5 62 47.5 57.5 C 47.5 53 45.8 52 45.8 47.5 C 45.8 45 44.5 45 43 46.8 C 41 46.5 39 44 36 43.5 C 30 42.5 24 41.5 18.5 39.5 C 22 37 26 35.5 31 34.5 C 36 33.5 40 35 44 37 C 44 35.5 43 35 41.5 33.5 C 44 32 47 32.5 47.2 30 C 47.2 26 43 26 43.2 21 C 43.2 15 48 11 50 7 Z" />
+    </svg>
+  )
+}
+
 export function SkullIcon({ size = '1em' }: { size?: string }) {
   return (
     <svg viewBox="0 0 100 100" width={size} height={size} fill="currentColor" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
@@ -107,6 +115,165 @@ export function CalendarIcon({ size = '1em' }: { size?: string }) {
       <line x1="30" y1="10" x2="30" y2="26" /><line x1="70" y1="10" x2="70" y2="26" />
       <line x1="28" y1="55" x2="40" y2="55" /><line x1="46" y1="55" x2="58" y2="55" /><line x1="64" y1="55" x2="76" y2="55" />
       <line x1="28" y1="72" x2="40" y2="72" /><line x1="46" y1="72" x2="58" y2="72" />
+    </svg>
+  )
+}
+
+export function HomeIcon({ size = '1em' }: { size?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <path d="M15 48 L50 16 L85 48" />
+      <path d="M25 42 L25 88 L75 88 L75 42" />
+      <path d="M42 88 L42 62 L58 62 L58 88" />
+    </svg>
+  )
+}
+
+export function FlameIcon({ size = '1em' }: { size?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} fill="currentColor" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <path d="M50 8 C28 34 24 50 29 64 C32 74 41 82 50 92 C59 82 68 74 71 64 C76 50 72 34 50 8 Z" />
+      <path d="M50 40 C41 54 39 61 43 69 C45 74 50 78 50 78 C50 78 55 74 57 69 C61 61 59 54 50 40 Z" fill="#060404" />
+    </svg>
+  )
+}
+
+export function FilmIcon({ size = '1em' }: { size?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <rect x="10" y="20" width="80" height="60" rx="6" />
+      <line x1="10" y1="34" x2="90" y2="34" /><line x1="10" y1="66" x2="90" y2="66" />
+      <line x1="26" y1="20" x2="26" y2="34" /><line x1="26" y1="66" x2="26" y2="80" />
+      <line x1="74" y1="20" x2="74" y2="34" /><line x1="74" y1="66" x2="74" y2="80" />
+    </svg>
+  )
+}
+
+export function VideoIcon({ size = '1em' }: { size?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <rect x="10" y="26" width="55" height="48" rx="6" />
+      <path d="M65 40 L90 26 L90 74 L65 60 Z" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+export function MailIcon({ size = '1em' }: { size?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <rect x="10" y="22" width="80" height="56" rx="6" />
+      <path d="M12 26 L50 55 L88 26" />
+    </svg>
+  )
+}
+
+export function PlayIcon({ size = '1em' }: { size?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} fill="currentColor" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <path d="M25 15 L85 50 L25 85 Z" />
+    </svg>
+  )
+}
+
+export function PauseIcon({ size = '1em' }: { size?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} fill="currentColor" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <rect x="22" y="15" width="20" height="70" /><rect x="58" y="15" width="20" height="70" />
+    </svg>
+  )
+}
+
+export function VkIcon({ size = '1em' }: { size?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <rect x="10" y="10" width="80" height="80" rx="20" />
+      <path d="M28 30 L50 68 L72 30" fill="none" />
+    </svg>
+  )
+}
+
+export function TelegramIcon({ size = '1em' }: { size?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <path d="M10 46 L88 14 L64 90 L46 62 L28 74 L32 50 Z" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+export function DownloadIcon({ size = '1em' }: { size?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <line x1="50" y1="12" x2="50" y2="62" />
+      <path d="M28 42 L50 64 L72 42" />
+      <line x1="18" y1="82" x2="82" y2="82" />
+    </svg>
+  )
+}
+
+export function CloseIcon({ size = '1em' }: { size?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <line x1="20" y1="20" x2="80" y2="80" /><line x1="80" y1="20" x2="20" y2="80" />
+    </svg>
+  )
+}
+
+export function MenuIcon({ size = '1em' }: { size?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="7" strokeLinecap="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <line x1="15" y1="28" x2="85" y2="28" /><line x1="15" y1="50" x2="85" y2="50" /><line x1="15" y1="72" x2="85" y2="72" />
+    </svg>
+  )
+}
+
+export function ChevronDownIcon({ size = '1em' }: { size?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <path d="M15 30 L50 65 L85 30" />
+    </svg>
+  )
+}
+
+export function DropIcon({ size = '1em' }: { size?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} fill="currentColor" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <path d="M50 8 C30 40 19 59 19 73 C19 89 33 97 50 97 C67 97 81 89 81 73 C81 59 70 40 50 8 Z" />
+    </svg>
+  )
+}
+
+export function SoundIcon({ size = '1em' }: { size?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <path d="M14 38 L14 62 L34 62 L58 83 L58 17 L34 38 Z" strokeLinejoin="round" />
+      <path d="M70 36 C77 43 77 57 70 64" />
+      <path d="M80 24 C94 37 94 63 80 76" />
+    </svg>
+  )
+}
+
+export function PlusIcon({ size = '1em' }: { size?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <line x1="50" y1="15" x2="50" y2="85" /><line x1="15" y1="50" x2="85" y2="50" />
+    </svg>
+  )
+}
+
+export function MinusIcon({ size = '1em' }: { size?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <line x1="15" y1="50" x2="85" y2="50" />
+    </svg>
+  )
+}
+
+export function MuteIcon({ size = '1em' }: { size?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <path d="M14 38 L14 62 L34 62 L58 83 L58 17 L34 38 Z" strokeLinejoin="round" />
+      <line x1="68" y1="38" x2="92" y2="62" />
+      <line x1="92" y1="38" x2="68" y2="62" />
     </svg>
   )
 }

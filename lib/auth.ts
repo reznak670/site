@@ -4,10 +4,28 @@ import type { NextRequest } from 'next/server'
 export const SESSION_COOKIE_NAME = 'bs_admin_session'
 const SESSION_TTL_MS = 1000 * 60 * 60 * 4 // 4 часа
 
-// В проде задайте ADMIN_PASSWORD и ADMIN_SESSION_SECRET в переменных окружения —
-// значения ниже нужны только чтобы локальная разработка сразу работала из коробки.
+const DEV_FALLBACK_SECRET = 'bloody-scissors-dev-secret-change-me'
+const DEV_FALLBACK_PASSWORD = 'kozaaa1994'
+
+// В проде ADMIN_PASSWORD и ADMIN_SESSION_SECRET обязательны — без них сервер
+// откажется обслуживать вход в админку. Дев-фолбэки ниже работают только
+// при NODE_ENV !== 'production', чтобы `npm run dev` заводился из коробки.
 function getSecret(): string {
-  return process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_PASSWORD || 'bloody-scissors-dev-secret-change-me'
+  const secret = process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_PASSWORD
+  if (secret) return secret
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('ADMIN_SESSION_SECRET (или ADMIN_PASSWORD) не задан в production')
+  }
+  return DEV_FALLBACK_SECRET
+}
+
+function getExpectedPassword(): string {
+  const password = process.env.ADMIN_PASSWORD
+  if (password) return password
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('ADMIN_PASSWORD не задан в production')
+  }
+  return DEV_FALLBACK_PASSWORD
 }
 
 function sign(payload: string): string {
@@ -36,7 +54,7 @@ export function verifySessionToken(token: string | undefined | null): boolean {
 }
 
 export function checkPassword(input: string): boolean {
-  const expected = process.env.ADMIN_PASSWORD || 'kozaaa1994'
+  const expected = getExpectedPassword()
   const a = Buffer.from(String(input || ''))
   const b = Buffer.from(expected)
   if (a.length !== b.length) return false
