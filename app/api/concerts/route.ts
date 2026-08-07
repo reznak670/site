@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getConcerts, addConcert, deleteConcert } from '@/lib/store'
 import { isAuthed } from '@/lib/auth'
-import { saveConcertPoster, UploadError } from '@/lib/uploads'
+import { resolveUpload, UploadError } from '@/lib/uploads'
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 
@@ -27,7 +27,6 @@ export async function POST(req: NextRequest) {
   const venue = String(form.get('venue') || '').trim().slice(0, 150)
   const ticketUrl = String(form.get('ticketUrl') || '').trim().slice(0, 300)
   const desc = String(form.get('desc') || '').trim().slice(0, 400)
-  const file = form.get('file')
 
   if (!date || !city || !venue) {
     return NextResponse.json({ error: 'Укажите дату, город и площадку' }, { status: 400 })
@@ -37,13 +36,11 @@ export async function POST(req: NextRequest) {
   }
 
   let poster = ''
-  if (file instanceof File && file.size > 0) {
-    try {
-      poster = await saveConcertPoster(file)
-    } catch (e) {
-      const message = e instanceof UploadError ? e.message : 'Ошибка загрузки фото'
-      return NextResponse.json({ error: message }, { status: 400 })
-    }
+  try {
+    poster = await resolveUpload(form, 'concert')
+  } catch (e) {
+    const message = e instanceof UploadError ? e.message : 'Ошибка загрузки фото'
+    return NextResponse.json({ error: message }, { status: 400 })
   }
 
   const concert = await addConcert({ date, time, city, venue, ticketUrl, desc, poster })

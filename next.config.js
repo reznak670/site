@@ -2,28 +2,20 @@
 const nextConfig = {
   reactStrictMode: true,
 
-  // better-sqlite3 ships a native .node addon that webpack can't bundle —
-  // keep it (and the Prisma packages that load it) as real require() calls.
+  // pg открывает TCP-сокеты и подгружает опциональные нативные модули —
+  // webpack такое не бандлит, оставляем настоящими require().
   experimental: {
-    serverComponentsExternalPackages: ['better-sqlite3', '@prisma/client', '@prisma/adapter-better-sqlite3'],
+    serverComponentsExternalPackages: ['@prisma/client', '@prisma/adapter-pg', 'pg'],
   },
 
-  // Отдача статических файлов из front/
-  async rewrites() {
-    return [
+  // Постеры концертов и картинки мерча после загрузки живут в Vercel Blob.
+  images: {
+    remotePatterns: [
       {
-        source: '/video/:path*',
-        destination: '/api/static/video/:path*',
+        protocol: 'https',
+        hostname: '**.public.blob.vercel-storage.com',
       },
-      {
-        source: '/sound/:path*',
-        destination: '/api/static/sound/:path*',
-      },
-      {
-        source: '/img/:path*',
-        destination: '/api/static/img/:path*',
-      },
-    ]
+    ],
   },
 
   // Заголовки для медиафайлов

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getTracks, addTrack, deleteTrack } from '@/lib/store'
 import { isAuthed } from '@/lib/auth'
-import { saveAudioFile, UploadError } from '@/lib/uploads'
+import { resolveUpload, UploadError } from '@/lib/uploads'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,14 +20,16 @@ export async function POST(req: NextRequest) {
 
   const name = String(form.get('name') || '').trim().slice(0, 100)
   const desc = String(form.get('desc') || '').trim().slice(0, 400)
-  const file = form.get('file')
 
-  if (!name || !(file instanceof File) || file.size === 0) {
-    return NextResponse.json({ error: 'Укажите название и аудиофайл трека' }, { status: 400 })
+  if (!name) {
+    return NextResponse.json({ error: 'Укажите название трека' }, { status: 400 })
   }
 
   try {
-    const src = await saveAudioFile(file)
+    const src = await resolveUpload(form, 'audio')
+    if (!src) {
+      return NextResponse.json({ error: 'Укажите аудиофайл трека' }, { status: 400 })
+    }
     const track = await addTrack({ name, desc, src })
     return NextResponse.json({ track })
   } catch (e) {

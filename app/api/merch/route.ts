@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getMerch, addMerch, deleteMerch } from '@/lib/store'
 import { isAuthed } from '@/lib/auth'
-import { saveImageFile, UploadError } from '@/lib/uploads'
+import { resolveUpload, UploadError } from '@/lib/uploads'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,17 +21,13 @@ export async function POST(req: NextRequest) {
   const name = String(form.get('name') || '').trim().slice(0, 100)
   const desc = String(form.get('desc') || '').trim().slice(0, 400)
   const price = String(form.get('price') || '').trim().slice(0, 30)
-  const file = form.get('file')
 
   if (!name || !price) {
     return NextResponse.json({ error: 'Укажите название и цену' }, { status: 400 })
   }
 
   try {
-    let image = ''
-    if (file instanceof File && file.size > 0) {
-      image = await saveImageFile(file)
-    }
+    const image = await resolveUpload(form, 'merch')
     const item = await addMerch({ name, desc, price, image })
     return NextResponse.json({ item })
   } catch (e) {

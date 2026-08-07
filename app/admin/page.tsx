@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { SkullIcon, LockIcon, TrashIcon, MusicNoteIcon, BagIcon, BellIcon, CalendarIcon } from '../icons'
 import type { Track, MerchItem, Order, Concert } from '@/lib/store'
+import { attachUpload } from '@/lib/uploadClient'
 import CityAutocomplete from './CityAutocomplete'
 import TimePicker from './TimePicker'
 import DatePicker from './DatePicker'
@@ -34,6 +35,9 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 export default function AdminPage() {
   const [checking, setChecking] = useState(true)
   const [authed, setAuthed] = useState(false)
+  // Настроен ли Vercel Blob: если да — файлы уходят в хранилище напрямую из
+  // браузера, минуя лимит 4.5 МБ на тело запроса к серверной функции.
+  const [blobEnabled, setBlobEnabled] = useState(false)
 
   const [password, setPassword] = useState('')
   const [loginError, setLoginError] = useState('')
@@ -77,6 +81,7 @@ export default function AdminPage() {
       .then((r) => r.json())
       .then((data) => {
         setAuthed(Boolean(data.ok))
+        setBlobEnabled(Boolean(data.blob))
         setChecking(false)
         if (data.ok) loadData()
       })
@@ -133,7 +138,7 @@ export default function AdminPage() {
       const fd = new FormData()
       fd.set('name', trackForm.name)
       fd.set('desc', trackForm.desc)
-      fd.set('file', trackFile)
+      await attachUpload(fd, trackFile, 'audio', blobEnabled)
       const res = await fetch('/api/tracks', { method: 'POST', body: fd })
       const data = await res.json()
       if (!res.ok) {
@@ -146,8 +151,8 @@ export default function AdminPage() {
       const fileInput = document.getElementById('track-file-input') as HTMLInputElement | null
       if (fileInput) fileInput.value = ''
       setTrackMsg({ type: 'success', text: 'Трек добавлен' })
-    } catch {
-      setTrackMsg({ type: 'error', text: 'Ошибка сети' })
+    } catch (err) {
+      setTrackMsg({ type: 'error', text: err instanceof Error ? err.message : 'Ошибка сети' })
     } finally {
       setTrackSubmitting(false)
     }
@@ -176,7 +181,7 @@ export default function AdminPage() {
       fd.set('name', merchForm.name)
       fd.set('desc', merchForm.desc)
       fd.set('price', merchForm.price)
-      if (merchFile) fd.set('file', merchFile)
+      if (merchFile) await attachUpload(fd, merchFile, 'merch', blobEnabled)
       const res = await fetch('/api/merch', { method: 'POST', body: fd })
       const data = await res.json()
       if (!res.ok) {
@@ -189,8 +194,8 @@ export default function AdminPage() {
       const fileInput = document.getElementById('merch-file-input') as HTMLInputElement | null
       if (fileInput) fileInput.value = ''
       setMerchMsg({ type: 'success', text: 'Товар добавлен' })
-    } catch {
-      setMerchMsg({ type: 'error', text: 'Ошибка сети' })
+    } catch (err) {
+      setMerchMsg({ type: 'error', text: err instanceof Error ? err.message : 'Ошибка сети' })
     } finally {
       setMerchSubmitting(false)
     }
@@ -217,7 +222,7 @@ export default function AdminPage() {
     try {
       const fd = new FormData()
       Object.entries(concertForm).forEach(([key, val]) => fd.set(key, val))
-      if (concertFile) fd.set('file', concertFile)
+      if (concertFile) await attachUpload(fd, concertFile, 'concert', blobEnabled)
       const res = await fetch('/api/concerts', { method: 'POST', body: fd })
       const data = await res.json()
       if (!res.ok) {
@@ -230,8 +235,8 @@ export default function AdminPage() {
       const fileInput = document.getElementById('concert-file-input') as HTMLInputElement | null
       if (fileInput) fileInput.value = ''
       setConcertMsg({ type: 'success', text: 'Концерт добавлен' })
-    } catch {
-      setConcertMsg({ type: 'error', text: 'Ошибка сети' })
+    } catch (err) {
+      setConcertMsg({ type: 'error', text: err instanceof Error ? err.message : 'Ошибка сети' })
     } finally {
       setConcertSubmitting(false)
     }
