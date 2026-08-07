@@ -58,7 +58,9 @@ export default function Hero() {
       ) : (
         <Image src="/img/poster.jpg" alt="" fill priority sizes="100vw" className="object-cover" />
       )}
-      <div className="scanline-overlay absolute inset-0 bg-gradient-to-b from-ink/75 via-ink/60 to-ink" />
+      {/* Затемнение ослаблено, чтобы видео читалось как картинка, а не как
+          чёрный прямоугольник. Низ почти непрозрачный — там стык с фоном страницы. */}
+      <div className="scanline-overlay absolute inset-0 bg-gradient-to-b from-ink/55 via-ink/35 to-ink/95" />
 
       {/* VHS tracking mistrack — mostly invisible, jumps briefly and rarely. */}
       <div

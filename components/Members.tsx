@@ -34,32 +34,24 @@ function MemberCard({ member }: { member: Member }) {
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 p-5">
+      {/* Подложка только под подпись: верх карточки оставляем открытым, чтобы
+          рисунок было видно, а имя с ролью не тонули в его светлых местах. */}
+      <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/55 to-transparent" />
+      {/* max-h-full: подпись прижата к низу карточки, и без ограничения длинная
+          биография выталкивала имя с ролью за верхний край. */}
+      <div className="absolute inset-x-0 bottom-0 max-h-full overflow-hidden p-3 sm:p-5">
         <span className="eyebrow">{member.index}</span>
-        <h3 className="font-display text-2xl font-bold uppercase leading-none">{member.name}</h3>
-        <p className="mt-1 text-sm font-medium text-red-bright">{member.role}</p>
-        <p className="mt-2 text-sm leading-snug text-paper/75 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+        <h3 className="font-display text-lg font-bold uppercase leading-none sm:text-2xl">{member.name}</h3>
+        <p className="mt-1 text-xs font-medium text-red-bright sm:text-sm">{member.role}</p>
+        {/* Биография раскрывается по наведению, а на тач-экранах наведения нет —
+            там она только занимала место и ломала вёрстку карточки. */}
+        <p className="mt-2 hidden text-sm leading-snug text-paper/75 opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:block">
           {member.bio}
         </p>
-        <p className="mt-2 font-mono text-xs italic text-mute">{member.quote}</p>
+        <p className="mt-1.5 font-mono text-[10px] italic leading-snug text-mute sm:mt-2 sm:text-xs">
+          {member.quote}
+        </p>
       </div>
-    </div>
-  )
-}
-
-function CenterCard() {
-  return (
-    <div className="glass relative flex aspect-[3/4] flex-col items-center justify-center p-5 text-center shadow-glow">
-      <span className="eyebrow">05</span>
-      <h3 className="font-horror text-2xl uppercase leading-tight">
-        BLOODY
-        <br />
-        SCISSORS
-      </h3>
-      <p className="mt-1 text-sm font-medium text-paper">Сургутский ньюметал</p>
-      <p className="mt-2 text-sm leading-snug text-paper/75">Шесть лезвий — одна кровавая баня. Мы не группа, мы хирургический инструмент.</p>
-      <p className="mt-2 font-mono text-xs italic text-mute">«КОЗААА!»</p>
     </div>
   )
 }
@@ -77,9 +69,7 @@ export default function Members() {
 
         <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {MEMBERS.map((m) => <MemberCard key={m.index} member={m} />)}
-          <CenterCard />
-          <MemberCard member={MEMBERS_2[0]} />
-          <MemberCard member={MEMBERS_2[1]} />
+          {MEMBERS_2.map((m) => <MemberCard key={m.index} member={m} />)}
         </div>
 
         <div className="mt-14 text-center">

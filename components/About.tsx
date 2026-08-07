@@ -11,8 +11,10 @@ export default function About() {
   return (
     <section id="about" className="relative py-24 sm:py-32">
       <div className="absolute inset-0 -z-10">
-        <Image src="/img/we.jpg" alt="" fill sizes="100vw" className="object-cover opacity-40" />
-        <div className="absolute inset-0 bg-gradient-to-b from-ink/70 via-ink/60 to-ink/85" />
+        {/* Текст лежит в .glass с backdrop-blur, поэтому снимок можно держать
+            заметно светлее — читаемость обеспечивает панель, а не затемнение. */}
+        <Image src="/img/we.jpg" alt="" fill sizes="100vw" className="object-cover opacity-70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-ink/55 via-ink/35 to-ink/75" />
       </div>
 
       <div className="mx-auto max-w-3xl px-5">
@@ -30,9 +32,11 @@ export default function About() {
           </p>
         </div>
 
-        <div className="mt-6 space-y-1">
+        {/* Своя подложка: мелкий шрифт приглушённым цветом на осветлённом
+            снимке становился нечитаемым. Панель держит его тихим, но видимым. */}
+        <div className="cut-sm mt-6 space-y-1 bg-ink/65 p-4 backdrop-blur-sm">
           {DISCLAIMERS.map((line) => (
-            <p key={line} className="font-mono text-[11px] leading-relaxed text-mute/70">
+            <p key={line} className="font-mono text-[11px] leading-relaxed text-mute">
               {line}
             </p>
           ))}

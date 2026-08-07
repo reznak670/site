@@ -3,29 +3,39 @@
 import { useEffect, useRef, useState } from 'react'
 import { ChevronDownIcon, CloseIcon, CrossIcon, MuteIcon, PlayIcon, ScissorsIcon, SoundIcon } from '@/app/icons'
 
-type Short = { id: number; title: string; desc: string; src: string }
+type Short = { id: number; src: string }
 
 const SHORTS: Short[] = [
-  { id: 0, title: 'ЖЕСТЬ', desc: 'Чистая ярость на сцене', src: '/video/zhest.mp4' },
-  { id: 1, title: 'КРОВАВАЯ', desc: 'Кровь, пот и слэм', src: '/video/krovavaya.mp4' },
-  { id: 2, title: 'ПРОШЛОЕ', desc: 'Как всё начиналось', src: '/video/proshloe.mp4' },
-  { id: 3, title: 'РР', desc: 'Рёв и разрушение', src: '/video/rr.mp4' },
+  { id: 0, src: '/video/zhest.mp4' },
+  { id: 1, src: '/video/krovavaya.mp4' },
+  { id: 2, src: '/video/proshloe.mp4' },
+  { id: 3, src: '/video/rr.mp4' },
 ]
 
-function ShortThumb({ short, onOpen }: { short: Short; onOpen: () => void }) {
+// Превью берётся из самого ролика: фрагмент #t=0.1 заставляет браузер
+// отмотать на 0.1 секунды и отрисовать этот кадр. Без него превью пустое —
+// нулевой кадр многие браузеры (в первую очередь Safari) не рисуют.
+function previewSrc(src: string): string {
+  return `${src}#t=0.1`
+}
+
+function ShortThumb({ short, index, onOpen }: { short: Short; index: number; onOpen: () => void }) {
   return (
     <button
       type="button"
       onClick={onOpen}
+      aria-label={`Шортс ${index + 1}`}
       className="cut snap-item relative aspect-[9/16] w-[62vw] flex-none overflow-hidden border border-line text-left transition-colors hover:border-red/50 sm:w-56"
     >
-      <video src={short.src} muted playsInline preload="metadata" className="h-full w-full object-cover" />
-      <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/10 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 p-4">
-        <span className="text-red"><PlayIcon size="22px" /></span>
-        <h3 className="mt-2 font-display text-lg font-bold uppercase leading-none">{short.title}</h3>
-        <p className="mt-1 text-xs text-paper/70">{short.desc}</p>
-      </div>
+      <video
+        src={previewSrc(short.src)}
+        muted
+        playsInline
+        preload="metadata"
+        className="h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" />
+      <span className="absolute bottom-4 left-4 text-red"><PlayIcon size="22px" /></span>
     </button>
   )
 }
@@ -46,20 +56,18 @@ function StorySlide({ short, active, muted }: { short: Short; active: boolean; m
 
   return (
     <div className="relative h-[100svh] w-full flex-none snap-start">
+      {/* preload="metadata" вместо none — иначе до старта воспроизведения
+          слайд остаётся чёрным прямоугольником вместо кадра из ролика. */}
       <video
         ref={ref}
-        src={short.src}
+        src={previewSrc(short.src)}
         muted={muted}
         loop
         playsInline
-        preload="none"
+        preload="metadata"
         className="absolute inset-0 h-full w-full object-cover"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-transparent to-ink/40" />
-      <div className="absolute inset-x-0 bottom-24 px-6 text-center">
-        <h3 className="font-display text-2xl font-bold uppercase">{short.title}</h3>
-        <p className="mt-1 text-sm text-paper/75">{short.desc}</p>
-      </div>
     </div>
   )
 }
@@ -109,7 +117,7 @@ export default function Shorts() {
 
         <div className="no-scrollbar snap-row mt-8 flex gap-4 overflow-x-auto pb-2">
           {SHORTS.map((s, i) => (
-            <ShortThumb key={s.id} short={s} onOpen={() => openViewer(i)} />
+            <ShortThumb key={s.id} short={s} index={i} onOpen={() => openViewer(i)} />
           ))}
         </div>
         <p className="mt-3 flex items-center gap-2 font-mono text-xs uppercase tracking-widest2 text-mute">
@@ -119,7 +127,7 @@ export default function Shorts() {
       </div>
 
       {open && (
-        <div className="fixed inset-0 z-[60] bg-black">
+        <div className="fixed inset-0 z-[60] bg-ink">
           <div
             ref={scrollRef}
             onScroll={handleScroll}

@@ -4,28 +4,27 @@ import type { NextRequest } from 'next/server'
 export const SESSION_COOKIE_NAME = 'bs_admin_session'
 const SESSION_TTL_MS = 1000 * 60 * 60 * 4 // 4 часа
 
-const DEV_FALLBACK_SECRET = 'bloody-scissors-dev-secret-change-me'
-const DEV_FALLBACK_PASSWORD = 'kozaaa1994'
+// Доступ к админке намеренно зашит в репозиторий — так решил владелец сайта
+// 2026-08-08, чтобы деплой не требовал настройки переменных окружения.
+//
+// ВНИМАНИЕ: репозиторий публичный. Значит и пароль, и секрет подписи сессии
+// доступны любому — войти в /admin, прочитать заказы с ФИО, телефонами и
+// почтой покупателей и удалить контент может кто угодно. Секретом ниже
+// подписывается кука, поэтому подделать сессию можно и вовсе без пароля.
+// Если это перестанет устраивать: сделать репозиторий приватным либо задать
+// ADMIN_PASSWORD и ADMIN_SESSION_SECRET в Vercel — они перекрывают эти значения.
+const REPO_PASSWORD = 'Scissors2025!'
+const REPO_SESSION_SECRET = 'f19519412afc176e78217bcd53ff08ba21b26a57bc466824e10ec7f2c695c875'
 
-// В проде ADMIN_PASSWORD и ADMIN_SESSION_SECRET обязательны — без них сервер
-// откажется обслуживать вход в админку. Дев-фолбэки ниже работают только
-// при NODE_ENV !== 'production', чтобы `npm run dev` заводился из коробки.
+// ADMIN_PASSWORD в цепочке не случайно: если задать в Vercel только его,
+// подпись сессии тоже перестанет быть публичной — иначе куку по-прежнему
+// можно было бы подделать зашитым секретом, и смена пароля ничего не дала бы.
 function getSecret(): string {
-  const secret = process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_PASSWORD
-  if (secret) return secret
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error('ADMIN_SESSION_SECRET (или ADMIN_PASSWORD) не задан в production')
-  }
-  return DEV_FALLBACK_SECRET
+  return process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_PASSWORD || REPO_SESSION_SECRET
 }
 
 function getExpectedPassword(): string {
-  const password = process.env.ADMIN_PASSWORD
-  if (password) return password
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error('ADMIN_PASSWORD не задан в production')
-  }
-  return DEV_FALLBACK_PASSWORD
+  return process.env.ADMIN_PASSWORD || REPO_PASSWORD
 }
 
 function sign(payload: string): string {

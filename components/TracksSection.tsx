@@ -67,8 +67,21 @@ export default function TracksSection({ tracks }: { tracks: Track[] }) {
           свет), поэтому глушим прозрачностью и градиентом, иначе список треков
           на нём не читается. */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <Image src="/img/scissors.jpg" alt="" fill sizes="100vw" className="object-cover opacity-55" />
-        <div className="absolute inset-0 bg-gradient-to-b from-ink via-ink/45 to-ink" />
+        {/* На телефоне снимок разворачивается вертикально: кадр горизонтальный
+            (2560×1702), и в узкой колонке от ножниц оставалась одна середина. */}
+        <div className="rotate-frame absolute inset-0 sm:hidden">
+          <div>
+            <Image src="/img/scissors.jpg" alt="" fill sizes="100vh" className="object-cover opacity-80" />
+          </div>
+        </div>
+        <Image
+          src="/img/scissors.jpg"
+          alt=""
+          fill
+          sizes="100vw"
+          className="hidden object-cover opacity-80 sm:block"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-ink via-ink/25 to-ink" />
       </div>
 
       <div className="relative mx-auto max-w-4xl px-5">
@@ -78,7 +91,9 @@ export default function TracksSection({ tracks }: { tracks: Track[] }) {
           Наше оружие массового поражения. Врубай на полную, и пусть соседи вызывают ОМОН.
         </p>
 
-        <div className="cut mt-8 divide-y divide-line overflow-hidden border border-line">
+        {/* Своя подложка у списка: фоновый снимок держим светлым, а названия
+            треков лежат прямо на нём и без неё теряются в ярких местах. */}
+        <div className="cut mt-8 divide-y divide-line overflow-hidden border border-line bg-ink/55 backdrop-blur-sm">
           {tracks.map((track, i) => {
             const isActive = currentId === track.id
             return (

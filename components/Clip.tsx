@@ -9,7 +9,14 @@ export default function Clip() {
 
   function start() {
     setPlaying(true)
-    requestAnimationFrame(() => videoRef.current?.play().catch(() => {}))
+    requestAnimationFrame(() => {
+      const video = videoRef.current
+      if (!video) return
+      // Сброс на ноль обязателен: src указывает на #t=5 ради кадра-превью,
+      // и без этого клип стартовал бы с пятой секунды.
+      video.currentTime = 0
+      video.play().catch(() => {})
+    })
   }
 
   return (
@@ -22,14 +29,16 @@ export default function Clip() {
         </p>
 
         <div className="glass group relative mt-8 aspect-video overflow-hidden">
+          {/* Превью — кадр из самого клипа вместо отдельной картинки. Взята
+              пятая секунда, а не первая: ролик открывается затемнением, и на
+              0–2 секундах кадр почти чёрный. */}
           <video
             ref={videoRef}
-            className="h-full w-full bg-black object-cover"
-            src="/video/megaclip.mp4"
+            className="h-full w-full bg-ink object-cover"
+            src="/video/megaclip.mp4#t=5"
             controls={playing}
             playsInline
             preload="metadata"
-            poster="/img/poster.jpg"
             onPause={() => setPlaying(false)}
             onEnded={() => setPlaying(false)}
           />
@@ -39,7 +48,7 @@ export default function Clip() {
               type="button"
               onClick={start}
               aria-label="Смотреть клип"
-              className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-gradient-to-t from-ink via-ink/30 to-ink/60 transition-colors duration-300 hover:from-ink/95"
+              className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-gradient-to-t from-ink/85 via-ink/25 to-ink/45 transition-colors duration-300 hover:from-ink"
             >
               <span className="eyebrow inline-flex items-center gap-1.5 rounded-full border border-red/40 bg-ink/60 px-3 py-1 backdrop-blur-sm">
                 <ScissorsIcon size="11px" />
