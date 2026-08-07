@@ -3,14 +3,10 @@ import path from 'path'
 import crypto from 'crypto'
 import { put } from '@vercel/blob'
 import { UPLOAD_RULES, UploadError, type UploadKind } from './uploadRules'
+import { isBlobConfigured } from './blob'
 
-export { UPLOAD_RULES, UploadError }
+export { UPLOAD_RULES, UploadError, isBlobConfigured }
 export type { UploadKind }
-
-/** Настроен ли Vercel Blob. Без него загрузки идут на локальный диск (только dev). */
-export function isBlobConfigured(): boolean {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN)
-}
 
 /**
  * Загрузка файла через сервер. На Vercel этот путь ограничен 4.5 МБ на тело

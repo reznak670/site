@@ -2,12 +2,6 @@
 const nextConfig = {
   reactStrictMode: true,
 
-  // pg открывает TCP-сокеты и подгружает опциональные нативные модули —
-  // webpack такое не бандлит, оставляем настоящими require().
-  experimental: {
-    serverComponentsExternalPackages: ['@prisma/client', '@prisma/adapter-pg', 'pg'],
-  },
-
   // Постеры концертов и картинки мерча после загрузки живут в Vercel Blob.
   images: {
     remotePatterns: [

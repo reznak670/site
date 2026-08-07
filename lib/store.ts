@@ -1,4 +1,5 @@
-import { prisma } from './db'
+import crypto from 'crypto'
+import { readCollection, updateCollection } from './jsonStore'
 
 export type Track = {
   id: string
@@ -49,50 +50,59 @@ export type Concert = {
   createdAt: number
 }
 
-function toEpoch(date: Date): number {
-  return date.getTime()
+function byCreatedAtAsc<T extends { createdAt: number }>(a: T, b: T): number {
+  return a.createdAt - b.createdAt
 }
 
 // Tracks
 
 export async function getTracks(): Promise<Track[]> {
-  const rows = await prisma.track.findMany({ orderBy: { createdAt: 'asc' } })
-  return rows.map((t) => ({ id: t.id, name: t.name, desc: t.desc, src: t.src, createdAt: toEpoch(t.createdAt) }))
+  const tracks = await readCollection<Track>('tracks')
+  return tracks.slice().sort(byCreatedAtAsc)
 }
 
 export async function addTrack(input: Omit<Track, 'id' | 'createdAt'>): Promise<Track> {
-  const row = await prisma.track.create({ data: input })
-  return { id: row.id, name: row.name, desc: row.desc, src: row.src, createdAt: toEpoch(row.createdAt) }
+  const track: Track = { ...input, id: crypto.randomUUID(), createdAt: Date.now() }
+  return updateCollection<Track, Track>('tracks', (items) => ({
+    items: [...items, track],
+    result: track,
+  }))
 }
 
 export async function deleteTrack(id: string): Promise<void> {
-  await prisma.track.delete({ where: { id } }).catch(() => {})
+  await updateCollection<Track, void>('tracks', (items) => ({
+    items: items.filter((t) => t.id !== id),
+    result: undefined,
+  }))
 }
 
 // Merch
 
 export async function getMerch(): Promise<MerchItem[]> {
-  const rows = await prisma.merchItem.findMany({ orderBy: { createdAt: 'asc' } })
-  return rows.map((m) => ({ ...m, createdAt: toEpoch(m.createdAt) }))
+  const merch = await readCollection<MerchItem>('merch')
+  return merch.slice().sort(byCreatedAtAsc)
 }
 
 export async function addMerch(input: Omit<MerchItem, 'id' | 'createdAt'>): Promise<MerchItem> {
-  const row = await prisma.merchItem.create({ data: input })
-  return { ...row, createdAt: toEpoch(row.createdAt) }
+  const item: MerchItem = { ...input, id: crypto.randomUUID(), createdAt: Date.now() }
+  return updateCollection<MerchItem, MerchItem>('merch', (items) => ({
+    items: [...items, item],
+    result: item,
+  }))
 }
 
 export async function deleteMerch(id: string): Promise<void> {
-  await prisma.merchItem.delete({ where: { id } }).catch(() => {})
+  await updateCollection<MerchItem, void>('merch', (items) => ({
+    items: items.filter((m) => m.id !== id),
+    result: undefined,
+  }))
 }
 
 // Orders
 
 export async function getOrders(): Promise<Order[]> {
-  const rows = await prisma.order.findMany({
-    orderBy: { createdAt: 'desc' },
-    include: { items: true },
-  })
-  return rows.map((o) => ({ ...o, createdAt: toEpoch(o.createdAt) }))
+  const orders = await readCollection<Order>('orders')
+  return orders.slice().sort((a, b) => b.createdAt - a.createdAt)
 }
 
 export async function addOrder(input: {
@@ -102,39 +112,54 @@ export async function addOrder(input: {
   email: string
   items: OrderItemInput[]
 }): Promise<Order> {
-  const row = await prisma.order.create({
-    data: {
-      fio: input.fio,
-      phone: input.phone,
-      postalCode: input.postalCode,
-      email: input.email,
-      items: { create: input.items },
-    },
-    include: { items: true },
-  })
-  return { ...row, createdAt: toEpoch(row.createdAt) }
+  const order: Order = {
+    id: crypto.randomUUID(),
+    fio: input.fio,
+    phone: input.phone,
+    postalCode: input.postalCode,
+    email: input.email,
+    seen: false,
+    createdAt: Date.now(),
+    items: input.items.map((item) => ({ ...item, id: crypto.randomUUID() })),
+  }
+  return updateCollection<Order, Order>('orders', (items) => ({
+    items: [...items, order],
+    result: order,
+  }))
 }
 
 export async function markOrderSeen(id: string): Promise<void> {
-  await prisma.order.update({ where: { id }, data: { seen: true } }).catch(() => {})
+  await updateCollection<Order, void>('orders', (items) => ({
+    items: items.map((o) => (o.id === id ? { ...o, seen: true } : o)),
+    result: undefined,
+  }))
 }
 
 export async function deleteOrder(id: string): Promise<void> {
-  await prisma.order.delete({ where: { id } }).catch(() => {})
+  await updateCollection<Order, void>('orders', (items) => ({
+    items: items.filter((o) => o.id !== id),
+    result: undefined,
+  }))
 }
 
 // Concerts
 
 export async function getConcerts(): Promise<Concert[]> {
-  const rows = await prisma.concert.findMany({ orderBy: { date: 'asc' } })
-  return rows.map((c) => ({ ...c, createdAt: toEpoch(c.createdAt) }))
+  const concerts = await readCollection<Concert>('concerts')
+  return concerts.slice().sort((a, b) => a.date.localeCompare(b.date))
 }
 
 export async function addConcert(input: Omit<Concert, 'id' | 'createdAt'>): Promise<Concert> {
-  const row = await prisma.concert.create({ data: input })
-  return { ...row, createdAt: toEpoch(row.createdAt) }
+  const concert: Concert = { ...input, id: crypto.randomUUID(), createdAt: Date.now() }
+  return updateCollection<Concert, Concert>('concerts', (items) => ({
+    items: [...items, concert],
+    result: concert,
+  }))
 }
 
 export async function deleteConcert(id: string): Promise<void> {
-  await prisma.concert.delete({ where: { id } }).catch(() => {})
+  await updateCollection<Concert, void>('concerts', (items) => ({
+    items: items.filter((c) => c.id !== id),
+    result: undefined,
+  }))
 }
