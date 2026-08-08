@@ -61,7 +61,7 @@ export default function Members() {
     <section id="members" className="py-24 sm:py-32">
       <div className="mx-auto max-w-6xl px-5">
         <p className="eyebrow mb-3 flex items-center gap-1.5"><CrossIcon size="15px" />02 / Состав</p>
-        <h2 className="font-horror text-4xl uppercase tracking-wide sm:text-5xl">Лезвия в составе</h2>
+        <h2 className="font-horror text-4xl uppercase tracking-wide sm:text-5xl">Состав</h2>
         <p className="panel mt-8 max-w-2xl p-6 text-paper/85">
           Каждый из нас — острое лезвие, вонзающееся в твои уши. Мы — хирургический инструмент по
           расчленению тишины. Знакомься с теми, кто заставит твою кровь кипеть.
