@@ -72,8 +72,13 @@ export async function POST(req: NextRequest) {
   }
 
   clearAttempts(rateKey)
-  const order = await addOrder({ fio, phone, postalCode, email, items })
-  return NextResponse.json({ order: { id: order.id } })
+  try {
+    const order = await addOrder({ fio, phone, postalCode, email, items })
+    return NextResponse.json({ order: { id: order.id } })
+  } catch (e) {
+    console.error('Не удалось сохранить заказ:', e)
+    return NextResponse.json({ error: 'Не удалось сохранить заказ, попробуйте позже' }, { status: 500 })
+  }
 }
 
 export async function PATCH(req: NextRequest) {
@@ -84,8 +89,13 @@ export async function PATCH(req: NextRequest) {
   const id = body && typeof body.id === 'string' ? body.id : ''
   if (!id) return NextResponse.json({ error: 'id обязателен' }, { status: 400 })
 
-  await markOrderSeen(id)
-  return NextResponse.json({ ok: true })
+  try {
+    await markOrderSeen(id)
+    return NextResponse.json({ ok: true })
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Не удалось обновить заказ'
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
 }
 
 export async function DELETE(req: NextRequest) {
@@ -96,6 +106,11 @@ export async function DELETE(req: NextRequest) {
   const id = body && typeof body.id === 'string' ? body.id : ''
   if (!id) return NextResponse.json({ error: 'id обязателен' }, { status: 400 })
 
-  await deleteOrder(id)
-  return NextResponse.json({ ok: true })
+  try {
+    await deleteOrder(id)
+    return NextResponse.json({ ok: true })
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Не удалось удалить заказ'
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
 }

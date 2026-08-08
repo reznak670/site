@@ -25,16 +25,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Укажите название трека' }, { status: 400 })
   }
 
+  let src = ''
   try {
-    const src = await resolveUpload(form, 'audio')
-    if (!src) {
-      return NextResponse.json({ error: 'Укажите аудиофайл трека' }, { status: 400 })
-    }
-    const track = await addTrack({ name, desc, src })
-    return NextResponse.json({ track })
+    src = await resolveUpload(form, 'audio')
   } catch (e) {
     const message = e instanceof UploadError ? e.message : 'Ошибка загрузки файла'
     return NextResponse.json({ error: message }, { status: 400 })
+  }
+  if (!src) {
+    return NextResponse.json({ error: 'Укажите аудиофайл трека' }, { status: 400 })
+  }
+
+  try {
+    const track = await addTrack({ name, desc, src })
+    return NextResponse.json({ track })
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Не удалось сохранить трек'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 
@@ -47,6 +54,11 @@ export async function DELETE(req: NextRequest) {
   const id = body && typeof body.id === 'string' ? body.id : ''
   if (!id) return NextResponse.json({ error: 'id обязателен' }, { status: 400 })
 
-  await deleteTrack(id)
-  return NextResponse.json({ ok: true })
+  try {
+    await deleteTrack(id)
+    return NextResponse.json({ ok: true })
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Не удалось удалить трек'
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
 }

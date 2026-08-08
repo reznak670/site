@@ -57,8 +57,13 @@ async function readSnapshot<T>(name: Collection): Promise<Snapshot<T>> {
   }
 
   const raw = await new Response(res.stream).text()
+  // Blob отдаёт слабый ETag (W/"..."), а put({ ifMatch }) сверяет его как
+  // сильный: слабый валидатор не проходит сравнение, даже совпадая сам с
+  // собой. Без обрезки префикса каждая запись после первой (когда ETag уже
+  // есть) падала бы с вечным PreconditionFailed — не гонка, а гарантированный отказ.
+  const etag = res.blob.etag.replace(/^W\//, '')
   try {
-    return { items: JSON.parse(raw) as T[], etag: res.blob.etag }
+    return { items: JSON.parse(raw) as T[], etag }
   } catch {
     // Битый JSON лучше не затирать молча — иначе одна неудачная запись
     // тихо обнулит заказы.
@@ -70,6 +75,13 @@ async function writeSnapshot<T>(name: Collection, items: T[], etag?: string): Pr
   const body = JSON.stringify(items, null, 2)
 
   if (!isBlobConfigured()) {
+    // На Vercel диск доступен только на чтение: без Blob-стора запись падала бы
+    // с невнятным EROFS, а в админке это выглядело как «ошибка загрузки файла».
+    if (process.env.VERCEL) {
+      throw new Error(
+        'Хранилище не настроено: подключите Vercel Blob к проекту (переменная BLOB_READ_WRITE_TOKEN) и передеплойте сайт'
+      )
+    }
     const target = localPath(name)
     await fs.mkdir(path.dirname(target), { recursive: true })
     await fs.writeFile(target, body)

@@ -26,13 +26,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Укажите название и цену' }, { status: 400 })
   }
 
+  let image = ''
   try {
-    const image = await resolveUpload(form, 'merch')
-    const item = await addMerch({ name, desc, price, image })
-    return NextResponse.json({ item })
+    image = await resolveUpload(form, 'merch')
   } catch (e) {
     const message = e instanceof UploadError ? e.message : 'Ошибка загрузки файла'
     return NextResponse.json({ error: message }, { status: 400 })
+  }
+
+  // Сохранение отделено от загрузки: иначе отказ хранилища приходил в админку
+  // как «ошибка загрузки файла» и настоящую причину было не видно.
+  try {
+    const item = await addMerch({ name, desc, price, image })
+    return NextResponse.json({ item })
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Не удалось сохранить товар'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 
@@ -45,6 +54,11 @@ export async function DELETE(req: NextRequest) {
   const id = body && typeof body.id === 'string' ? body.id : ''
   if (!id) return NextResponse.json({ error: 'id обязателен' }, { status: 400 })
 
-  await deleteMerch(id)
-  return NextResponse.json({ ok: true })
+  try {
+    await deleteMerch(id)
+    return NextResponse.json({ ok: true })
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Не удалось удалить товар'
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
 }

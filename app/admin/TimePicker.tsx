@@ -91,7 +91,7 @@ export default function TimePicker({ value, onChange }: { value: string; onChang
       {open && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-ink/80 backdrop-blur-sm p-4" onClick={() => setOpen(false)}>
           <div className="glass w-full max-w-xs p-5" onClick={(e) => e.stopPropagation()}>
-            <div className="mb-3 font-mono text-xs uppercase tracking-widest2 text-red">Время начала</div>
+            <div className="mb-3 font-mono text-xs uppercase tracking-widest2 text-red">Время начала (местное)</div>
             <div className="relative flex items-center justify-center gap-2">
               <div className="pointer-events-none absolute inset-x-0 top-1/2 h-10 -translate-y-1/2 border-y border-red/40 bg-red/5" aria-hidden />
               <Wheel options={HOURS} value={hour} onChange={setHour} />

@@ -43,8 +43,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 400 })
   }
 
-  const concert = await addConcert({ date, time, city, venue, ticketUrl, desc, poster })
-  return NextResponse.json({ concert })
+  try {
+    const concert = await addConcert({ date, time, city, venue, ticketUrl, desc, poster })
+    return NextResponse.json({ concert })
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Не удалось сохранить концерт'
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
 }
 
 export async function DELETE(req: NextRequest) {
@@ -56,6 +61,11 @@ export async function DELETE(req: NextRequest) {
   const id = body && typeof body.id === 'string' ? body.id : ''
   if (!id) return NextResponse.json({ error: 'id обязателен' }, { status: 400 })
 
-  await deleteConcert(id)
-  return NextResponse.json({ ok: true })
+  try {
+    await deleteConcert(id)
+    return NextResponse.json({ ok: true })
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Не удалось удалить концерт'
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
 }

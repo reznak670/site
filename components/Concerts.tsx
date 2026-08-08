@@ -35,7 +35,8 @@ function ConcertCard({ concert }: { concert: Concert }) {
           <h3 className="font-display text-xl font-bold uppercase leading-tight">{concert.venue}</h3>
           <p className="text-sm text-paper/75">
             {concert.city}
-            {concert.time ? ` · ${concert.time} МСК` : ''}
+            {/* Время хранится как есть, без пересчёта поясов: это местное время площадки. */}
+            {concert.time ? ` · ${concert.time} по местному времени` : ''}
           </p>
           {concert.desc && <p className="mt-2 text-sm text-paper/60">{concert.desc}</p>}
           {concert.ticketUrl && (

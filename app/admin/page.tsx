@@ -160,11 +160,16 @@ export default function AdminPage() {
 
   async function handleDeleteTrack(id: string) {
     if (!confirm('Удалить трек?')) return
-    await fetch('/api/tracks', {
+    const res = await fetch('/api/tracks', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
-    }).catch(() => {})
+    }).catch(() => null)
+    if (!res || !res.ok) {
+      const data = await res?.json().catch(() => null)
+      alert(data?.error || 'Не удалось удалить трек')
+      return
+    }
     setTracks((prev) => prev.filter((t) => t.id !== id))
   }
 
@@ -203,11 +208,16 @@ export default function AdminPage() {
 
   async function handleDeleteMerch(id: string) {
     if (!confirm('Удалить товар?')) return
-    await fetch('/api/merch', {
+    const res = await fetch('/api/merch', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
-    }).catch(() => {})
+    }).catch(() => null)
+    if (!res || !res.ok) {
+      const data = await res?.json().catch(() => null)
+      alert(data?.error || 'Не удалось удалить товар')
+      return
+    }
     setMerch((prev) => prev.filter((i) => i.id !== id))
   }
 
@@ -244,30 +254,43 @@ export default function AdminPage() {
 
   async function handleDeleteConcert(id: string) {
     if (!confirm('Удалить концерт?')) return
-    await fetch('/api/concerts', {
+    const res = await fetch('/api/concerts', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
-    }).catch(() => {})
+    }).catch(() => null)
+    if (!res || !res.ok) {
+      const data = await res?.json().catch(() => null)
+      alert(data?.error || 'Не удалось удалить концерт')
+      return
+    }
     setConcerts((prev) => prev.filter((c) => c.id !== id))
   }
 
   async function handleMarkOrderSeen(id: string) {
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, seen: true } : o)))
-    await fetch('/api/orders', {
+    const res = await fetch('/api/orders', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
-    }).catch(() => {})
+    }).catch(() => null)
+    if (!res || !res.ok) {
+      setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, seen: false } : o)))
+    }
   }
 
   async function handleDeleteOrder(id: string) {
     if (!confirm('Удалить заказ?')) return
-    await fetch('/api/orders', {
+    const res = await fetch('/api/orders', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
-    }).catch(() => {})
+    }).catch(() => null)
+    if (!res || !res.ok) {
+      const data = await res?.json().catch(() => null)
+      alert(data?.error || 'Не удалось удалить заказ')
+      return
+    }
     setOrders((prev) => prev.filter((o) => o.id !== id))
   }
 
@@ -466,7 +489,7 @@ export default function AdminPage() {
               <Field label="Дата">
                 <DatePicker value={concertForm.date} onChange={(date) => setConcertForm((f) => ({ ...f, date }))} />
               </Field>
-              <Field label="Время начала (МСК)">
+              <Field label="Время начала (местное время города)">
                 <TimePicker value={concertForm.time} onChange={(time) => setConcertForm((f) => ({ ...f, time }))} />
               </Field>
               <Field label="Город">
@@ -496,7 +519,7 @@ export default function AdminPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-display text-sm font-semibold uppercase">{c.venue}, {c.city}</div>
-                    <div className="font-mono text-xs text-paper">{c.date}{c.time ? ` в ${c.time}` : ''}</div>
+                    <div className="font-mono text-xs text-paper">{c.date}{c.time ? ` в ${c.time} (местное)` : ''}</div>
                   </div>
                   <button className="text-mute hover:text-red" onClick={() => handleDeleteConcert(c.id)} aria-label="Удалить">
                     <TrashIcon size="14px" />
