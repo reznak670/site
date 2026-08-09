@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getTracks, addTrack, deleteTrack } from '@/lib/store'
 import { isAuthed } from '@/lib/auth'
 import { resolveUpload, UploadError } from '@/lib/uploads'
+import { logAction } from '@/lib/actionLog'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,9 +39,11 @@ export async function POST(req: NextRequest) {
 
   try {
     const track = await addTrack({ name, desc, src })
+    logAction('tracks.add', { id: track.id, name })
     return NextResponse.json({ track })
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Не удалось сохранить трек'
+    logAction('tracks.add.fail', { error: message })
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }
@@ -56,9 +59,11 @@ export async function DELETE(req: NextRequest) {
 
   try {
     await deleteTrack(id)
+    logAction('tracks.delete', { id })
     return NextResponse.json({ ok: true })
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Не удалось удалить трек'
+    logAction('tracks.delete.fail', { id, error: message })
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }

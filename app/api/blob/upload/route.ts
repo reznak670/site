@@ -3,6 +3,7 @@ import { handleUpload, type HandleUploadBody } from '@vercel/blob/client'
 import { isAuthed } from '@/lib/auth'
 import { isBlobConfigured } from '@/lib/uploads'
 import { UPLOAD_RULES, type UploadKind } from '@/lib/uploadRules'
+import { logAction } from '@/lib/actionLog'
 
 export const dynamic = 'force-dynamic'
 
@@ -46,10 +47,14 @@ export async function POST(req: NextRequest) {
           addRandomSuffix: false,
         }
       },
+      onUploadCompleted: async ({ blob }) => {
+        logAction('upload.complete', { pathname: blob.pathname })
+      },
     })
     return NextResponse.json(result)
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Ошибка загрузки файла'
+    logAction('upload.fail', { error: message })
     return NextResponse.json({ error: message }, { status: 400 })
   }
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getMerch, addMerch, deleteMerch } from '@/lib/store'
 import { isAuthed } from '@/lib/auth'
 import { resolveUpload, UploadError } from '@/lib/uploads'
+import { logAction } from '@/lib/actionLog'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,9 +39,11 @@ export async function POST(req: NextRequest) {
   // как «ошибка загрузки файла» и настоящую причину было не видно.
   try {
     const item = await addMerch({ name, desc, price, image })
+    logAction('merch.add', { id: item.id, name })
     return NextResponse.json({ item })
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Не удалось сохранить товар'
+    logAction('merch.add.fail', { error: message })
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }
@@ -56,9 +59,11 @@ export async function DELETE(req: NextRequest) {
 
   try {
     await deleteMerch(id)
+    logAction('merch.delete', { id })
     return NextResponse.json({ ok: true })
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Не удалось удалить товар'
+    logAction('merch.delete.fail', { id, error: message })
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }

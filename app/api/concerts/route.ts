@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getConcerts, addConcert, deleteConcert } from '@/lib/store'
 import { isAuthed } from '@/lib/auth'
 import { resolveUpload, UploadError } from '@/lib/uploads'
+import { logAction } from '@/lib/actionLog'
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 
@@ -45,9 +46,11 @@ export async function POST(req: NextRequest) {
 
   try {
     const concert = await addConcert({ date, time, city, venue, ticketUrl, desc, poster })
+    logAction('concerts.add', { id: concert.id, city, venue })
     return NextResponse.json({ concert })
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Не удалось сохранить концерт'
+    logAction('concerts.add.fail', { error: message })
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }
@@ -63,9 +66,11 @@ export async function DELETE(req: NextRequest) {
 
   try {
     await deleteConcert(id)
+    logAction('concerts.delete', { id })
     return NextResponse.json({ ok: true })
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Не удалось удалить концерт'
+    logAction('concerts.delete.fail', { id, error: message })
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }

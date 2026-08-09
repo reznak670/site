@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getOrders, addOrder, markOrderSeen, deleteOrder, type OrderItemInput } from '@/lib/store'
 import { isAuthed } from '@/lib/auth'
 import { isRateLimited, recordFailedAttempt, clearAttempts } from '@/lib/rateLimit'
+import { logAction } from '@/lib/actionLog'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PHONE_RE = /^[0-9+()\-\s]{5,20}$/
@@ -74,9 +75,11 @@ export async function POST(req: NextRequest) {
   clearAttempts(rateKey)
   try {
     const order = await addOrder({ fio, phone, postalCode, email, items })
+    logAction('orders.add', { id: order.id, itemCount: items.length })
     return NextResponse.json({ order: { id: order.id } })
   } catch (e) {
     console.error('Не удалось сохранить заказ:', e)
+    logAction('orders.add.fail', { error: e instanceof Error ? e.message : String(e) })
     return NextResponse.json({ error: 'Не удалось сохранить заказ, попробуйте позже' }, { status: 500 })
   }
 }
@@ -91,9 +94,11 @@ export async function PATCH(req: NextRequest) {
 
   try {
     await markOrderSeen(id)
+    logAction('orders.markSeen', { id })
     return NextResponse.json({ ok: true })
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Не удалось обновить заказ'
+    logAction('orders.markSeen.fail', { id, error: message })
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }
@@ -108,9 +113,11 @@ export async function DELETE(req: NextRequest) {
 
   try {
     await deleteOrder(id)
+    logAction('orders.delete', { id })
     return NextResponse.json({ ok: true })
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Не удалось удалить заказ'
+    logAction('orders.delete.fail', { id, error: message })
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }
