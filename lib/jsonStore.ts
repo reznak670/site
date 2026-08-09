@@ -19,9 +19,11 @@ const SEEDS: Record<Collection, unknown[]> = {
   orders: ordersSeed,
 }
 
-// access: 'private' обязателен — в orders.json лежат ФИО, телефон, почта и
-// индекс покупателей. Публичный blob читался бы по прямой ссылке кем угодно.
-const ACCESS = 'private' as const
+// Стор один и настроен как public-only (private он отклоняет — см. историю
+// в git). orders.json при этом содержит ФИО/телефон/почту покупателей и
+// технически читается по прямой ссылке кем угодно, если её узнать; ссылка
+// нигде не публикуется, но это осознанный компромисс ради одного стора.
+const ACCESS = 'public' as const
 const MAX_WRITE_ATTEMPTS = 5
 
 function blobPath(name: Collection): string {

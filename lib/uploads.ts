@@ -3,9 +3,9 @@ import path from 'path'
 import crypto from 'crypto'
 import { put } from '@vercel/blob'
 import { UPLOAD_RULES, UploadError, type UploadKind } from './uploadRules'
-import { isPublicBlobConfigured, getPublicBlobToken } from './blob'
+import { isBlobConfigured } from './blob'
 
-export { UPLOAD_RULES, UploadError, isPublicBlobConfigured }
+export { UPLOAD_RULES, UploadError, isBlobConfigured }
 export type { UploadKind }
 
 /**
@@ -21,12 +21,11 @@ export async function saveUploadedFile(file: File, kind: UploadKind): Promise<st
 
   const pathname = `${dir}/${crypto.randomUUID()}.${ext}`
 
-  if (isPublicBlobConfigured()) {
+  if (isBlobConfigured()) {
     const blob = await put(pathname, file, {
       access: 'public',
       addRandomSuffix: false,
       contentType: file.type,
-      token: getPublicBlobToken(),
     })
     return blob.url
   }
