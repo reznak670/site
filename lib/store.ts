@@ -33,6 +33,8 @@ export type Order = {
   phone: string
   postalCode: string
   email: string
+  /** Тег вида @scissor. У заказов, оформленных до появления поля, его нет. */
+  telegram?: string
   seen: boolean
   createdAt: number
   items: OrderItemRecord[]
@@ -110,6 +112,7 @@ export async function addOrder(input: {
   phone: string
   postalCode: string
   email: string
+  telegram: string
   items: OrderItemInput[]
 }): Promise<Order> {
   const order: Order = {
@@ -118,6 +121,7 @@ export async function addOrder(input: {
     phone: input.phone,
     postalCode: input.postalCode,
     email: input.email,
+    telegram: input.telegram,
     seen: false,
     createdAt: Date.now(),
     items: input.items.map((item) => ({ ...item, id: crypto.randomUUID() })),

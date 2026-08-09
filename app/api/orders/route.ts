@@ -7,6 +7,10 @@ import { logAction } from '@/lib/actionLog'
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PHONE_RE = /^[0-9+()\-\s]{5,20}$/
 const POSTAL_RE = /^[0-9]{4,10}$/
+// Тег телеграма без ведущей @: буква в начале, дальше буквы/цифры/подчёркивания.
+// Диапазон чуть шире нынешних правил телеграма (5–32) — старые короткие теги
+// у людей остались, и отбивать их на форме незачем.
+const TELEGRAM_RE = /^[a-zA-Z][a-zA-Z0-9_]{3,31}$/
 const MAX_ITEMS = 20
 
 export const dynamic = 'force-dynamic'
@@ -54,8 +58,11 @@ export async function POST(req: NextRequest) {
   const phone = String(body.phone || '').trim().slice(0, 20)
   const postalCode = String(body.postalCode || '').trim().slice(0, 10)
   const email = String(body.email || '').trim().slice(0, 150)
+  // Принимаем и «@scissor», и «scissor», а храним всегда с собакой — чтобы в
+  // админке тег можно было скопировать и вставить в поиск телеграма как есть.
+  const telegramInput = String(body.telegram || '').trim().slice(0, 40).replace(/^@+/, '')
 
-  if (!items || !fio || !phone || !postalCode || !email) {
+  if (!items || !fio || !phone || !postalCode || !email || !telegramInput) {
     recordFailedAttempt(rateKey)
     return NextResponse.json({ error: 'Заполните все поля и добавьте товары в корзину' }, { status: 400 })
   }
@@ -71,10 +78,15 @@ export async function POST(req: NextRequest) {
     recordFailedAttempt(rateKey)
     return NextResponse.json({ error: 'Некорректная почта' }, { status: 400 })
   }
+  if (!TELEGRAM_RE.test(telegramInput)) {
+    recordFailedAttempt(rateKey)
+    return NextResponse.json({ error: 'Некорректный тег телеграма' }, { status: 400 })
+  }
+  const telegram = `@${telegramInput}`
 
   clearAttempts(rateKey)
   try {
-    const order = await addOrder({ fio, phone, postalCode, email, items })
+    const order = await addOrder({ fio, phone, postalCode, email, telegram, items })
     logAction('orders.add', { id: order.id, itemCount: items.length })
     return NextResponse.json({ order: { id: order.id } })
   } catch (e) {

@@ -386,6 +386,20 @@ export default function AdminPage() {
                   <div><b className="text-paper">Телефон:</b> {o.phone}</div>
                   <div><b className="text-paper">Индекс:</b> {o.postalCode}</div>
                   <div><b className="text-paper">Почта:</b> {o.email}</div>
+                  {/* Заказы до появления поля тега не имеют — не показываем пустую строку. */}
+                  {o.telegram && (
+                    <div>
+                      <b className="text-paper">Телеграм:</b>{' '}
+                      <a
+                        href={`https://t.me/${o.telegram.replace(/^@+/, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline decoration-red/50 underline-offset-2 hover:text-red"
+                      >
+                        {o.telegram}
+                      </a>
+                    </div>
+                  )}
                 </div>
                 <div className="mt-3 flex items-center gap-3">
                   {!o.seen && <button className="btn !px-3 !py-1.5 text-xs" onClick={() => handleMarkOrderSeen(o.id)}>ПРОЧИТАНО</button>}

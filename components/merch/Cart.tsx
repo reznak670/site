@@ -5,13 +5,16 @@ import { BagIcon, CheckIcon, CloseIcon, MinusIcon, PlusIcon, TrashIcon } from '@
 import { useCart } from './CartProvider'
 
 type Step = 'cart' | 'form' | 'success'
-type FormState = { fio: string; phone: string; postalCode: string; email: string }
+type FormState = { fio: string; phone: string; postalCode: string; email: string; telegram: string }
 
-const EMPTY_FORM: FormState = { fio: '', phone: '', postalCode: '', email: '' }
+const EMPTY_FORM: FormState = { fio: '', phone: '', postalCode: '', email: '', telegram: '' }
 
 const PHONE_RE = /^[0-9+()\-\s]{5,20}$/
 const POSTAL_RE = /^[0-9]{4,10}$/
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+// Собаку в начале отрезаем перед проверкой — её можно и не писать. Правило
+// то же, что на сервере (app/api/orders/route.ts).
+const TELEGRAM_RE = /^[a-zA-Z][a-zA-Z0-9_]{3,31}$/
 
 export default function Cart() {
   const { items, totalCount, setQty, removeItem, clear } = useCart()
@@ -43,7 +46,7 @@ export default function Cart() {
   function handleFormSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
-    if (!form.fio.trim() || !form.phone.trim() || !form.postalCode.trim() || !form.email.trim()) {
+    if (!form.fio.trim() || !form.phone.trim() || !form.postalCode.trim() || !form.email.trim() || !form.telegram.trim()) {
       setError('Заполните все поля')
       return
     }
@@ -57,6 +60,10 @@ export default function Cart() {
     }
     if (!EMAIL_RE.test(form.email.trim())) {
       setError('Проверьте почту')
+      return
+    }
+    if (!TELEGRAM_RE.test(form.telegram.trim().replace(/^@+/, ''))) {
+      setError('Проверьте тег телеграма — например, @scissor')
       return
     }
     submitOrder()
@@ -186,6 +193,10 @@ export default function Cart() {
                 <div className="flex flex-col gap-1.5">
                   <label className="font-mono text-[11px] uppercase tracking-widest2 text-mute">Email</label>
                   <input className="field-input" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} required />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="font-mono text-[11px] uppercase tracking-widest2 text-mute">Телеграм</label>
+                  <input className="field-input" value={form.telegram} onChange={(e) => setForm((f) => ({ ...f, telegram: e.target.value }))} placeholder="@scissor" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={40} required />
                 </div>
                 <p className="text-xs text-paper/60">
                   Онлайн-оплата пока не подключена — мы свяжемся с тобой, чтобы согласовать оплату и доставку.
