@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono, Oswald, Rubik_Wet_Paint } from 'next/font/google
 import localFont from 'next/font/local'
 import './globals.css'
 import Nav from '@/components/Nav'
+import SwCleanup from '@/components/SwCleanup'
 
 // Condensed poster grotesque — гиг-афиша, а не sci-fi. Есть кириллица.
 const oswald = Oswald({
@@ -71,6 +72,9 @@ export const metadata: Metadata = {
     ],
     apple: '/img/apple-touch-icon.png',
   },
+  other: {
+    'mobile-web-app-capable': 'yes',
+  },
 }
 
 export const viewport: Viewport = {
@@ -88,6 +92,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${oswald.variable} ${inter.variable} ${jetbrainsMono.variable} ${cattedrale.variable} ${rubikWetPaint.variable}`}
     >
       <body className="bg-ink text-paper">
+        <SwCleanup />
         <Nav />
         {children}
         <footer className="border-t border-line px-5 py-8 text-center">
