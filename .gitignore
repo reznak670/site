@@ -3,6 +3,9 @@
 .env.local
 .env*.local
 
+# содержит настоящие Blob-токены
+/blob guide/
+
 # остаток от прежнего SQLite-бэкенда
 /dev.db
 /dev.db-journal

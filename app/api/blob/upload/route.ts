@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client'
 import { isAuthed } from '@/lib/auth'
-import { isBlobConfigured } from '@/lib/uploads'
+import { isPublicBlobConfigured, getPublicBlobToken } from '@/lib/blob'
 import { UPLOAD_RULES, type UploadKind } from '@/lib/uploadRules'
 
 export const dynamic = 'force-dynamic'
@@ -17,7 +17,7 @@ function kindFromPathname(pathname: string): UploadKind | null {
 // Это обход лимита в 4.5 МБ на тело запроса к серверной функции —
 // иначе треки (до 25 МБ) через админку загрузить невозможно.
 export async function POST(req: NextRequest) {
-  if (!isBlobConfigured()) {
+  if (!isPublicBlobConfigured()) {
     return NextResponse.json({ error: 'Хранилище файлов не настроено' }, { status: 501 })
   }
   if (!isAuthed(req)) {
@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
     const result = await handleUpload({
       body,
       request: req,
+      token: getPublicBlobToken(),
       onBeforeGenerateToken: async (pathname) => {
         // Повторная проверка авторизации: токен подписывается здесь, и он
         // единственное, что стоит между публичным эндпоинтом и записью в стор.
